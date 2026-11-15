@@ -318,3 +318,20 @@ button:focus-visible, input:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition: none !important; }
 }
+
+/* ---------- phones held upright: drill fits on one screen ---------- */
+@media (max-width: 700px) and (orientation: portrait) {
+  .drill { gap: 10px; }
+  .drill__panel { gap: 10px; }
+  .anim { width: min(100%, calc(34svh * 4 / 3)); }
+  .tips { gap: 4px; font-size: 0.85em; }
+  .tips li { padding: 0.25em 0.7em; }
+  .timer__value { font-size: clamp(4rem, 2rem + 14vw, 7rem); }
+  .drill .btn-huge { min-height: 72px; }
+  .topbar { margin-bottom: 10px; }
+}
+@media (max-width: 700px) and (orientation: portrait) and (max-height: 640px) {
+  .anim { width: min(100%, calc(30svh * 4 / 3)); }
+  .timer__value { font-size: 4.2rem; }
+  #app { padding-bottom: 12px; }
+}
