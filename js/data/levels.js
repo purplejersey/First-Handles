@@ -21,12 +21,33 @@ export const LEVELS = [
   { id: 5, title: "Level 5", steps: [] },
 ];
 
-// Placeholder tips per drill, shown under the looping animation.
-// Chunk B replaces these with real coaching cues.
+// Coaching content per drill (Chunk B, from Coach Dags + standard coaching cues).
+// key:   3 short cues always shown under the animation.
+// pro:   extra tips for the Pro tips panel (built later). type: "do" | "dont" | "levelup".
+// stars: honor-system bonus challenges. 1 star = finish the time (always unlocks the
+//        next step). Stars stack: 3 stars means the 2-star challenge too.
 export const DRILL_TIPS = {
-  "one-hand-dribble": [
-    "Eyes up, not on the ball",
-    "Push the ball with your fingertips",
-    "Keep it below your waist",
-  ],
+  "one-hand-dribble": {
+    key: [
+      "Sit in your stance: knees bent, back straight",
+      "Push it, don't slap it: use your fingertips",
+      "Keep it at your hip and sneak a peek up",
+    ],
+    pro: [
+      { type: "do", text: "Bounce the ball just outside your foot, on the same side as your dribbling hand" },
+      { type: "do", text: "Spread your fingers wide on the ball" },
+      { type: "do", text: "Keep your elbow bent and loose. Your arm works like a spring" },
+      { type: "do", text: "Count your dribbles out loud to keep a steady beat" },
+      { type: "do", text: "Lost it? Get back in your stance and go again. Messing up is part of it" },
+      { type: "dont", text: "Don't dribble with your palm. Use your fingertips and finger pads" },
+      { type: "dont", text: "Don't stand up tall. Stay low the whole time" },
+      { type: "dont", text: "Don't stare at the ball the whole time" },
+      { type: "levelup", text: "Try looking up the whole time" },
+      { type: "levelup", text: "Floats: do 2-3 pounds, then let the ball ride up with your hand while your body stays low" },
+    ],
+    stars: {
+      2: "Eyes up the whole time",
+      3: "Eyes up + floats (2-3 pounds, then let it ride up)",
+    },
+  },
 };

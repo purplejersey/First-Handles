@@ -15,7 +15,7 @@ export function renderDrill(root, stepId) {
     return;
   }
   const { level, step } = found;
-  const tips = DRILL_TIPS[step.drill] || [];
+  const tips = DRILL_TIPS[step.drill]?.key || [];
 
   root.innerHTML = `
     ${header(`${step.id} · ${handLabel(step.hand)}`, `#/level/${level.id}`)}
