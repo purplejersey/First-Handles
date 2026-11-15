@@ -1,5 +1,6 @@
 // Drill flow: tutorial loops with tips -> Start -> 3-2-1 -> timer runs next
-// to the looping animation -> timer ends -> Done. "Lost it" restarts.
+// to the looping animation -> timer ends -> Done. "Lost it" (any time, even
+// right at the end) pauses until he taps "I'm ready", then restarts in full.
 
 import { DRILL_TIPS } from "../data/levels.js";
 import { completeStep, findStep, isStepUnlocked } from "../progress.js";
@@ -29,8 +30,9 @@ export function renderDrill(root, stepId) {
         </div>
         <div class="drill__actions">
           <button class="btn btn-huge" data-act="start">Start</button>
-          <button class="btn btn-huge btn-lost" data-act="lost">Lost it</button>
+          <button class="btn btn-huge" data-act="ready">I'm ready</button>
           <button class="btn btn-huge btn-done" data-act="done">Done</button>
+          <button class="btn btn-huge btn-lost" data-act="lost">Lost it</button>
         </div>
       </div>
       <div class="countdown" aria-live="assertive"></div>
@@ -83,7 +85,7 @@ export function renderDrill(root, stepId) {
     setPhase("finished");
     label.textContent = "Time!";
     value.textContent = "0";
-    unit.textContent = "Tap Done";
+    unit.textContent = "Kept it the whole time? Tap Done";
     releaseAwake();
     root.querySelector('[data-act="done"]').focus();
   }
@@ -96,8 +98,21 @@ export function renderDrill(root, stepId) {
     wakeLock = null;
   }
 
+  // Lost it: stop and wait until he says he's ready (timer restarts in full).
+  function pause() {
+    clearTimers();
+    countdown.textContent = "";
+    setPhase("paused");
+    label.textContent = "No problem!";
+    value.textContent = step.seconds;
+    unit.textContent = "Get the ball, then tap I'm ready";
+    releaseAwake();
+    root.querySelector('[data-act="ready"]').focus();
+  }
+
   root.querySelector('[data-act="start"]').addEventListener("click", startCountdown);
-  root.querySelector('[data-act="lost"]').addEventListener("click", () => {
+  root.querySelector('[data-act="lost"]').addEventListener("click", pause);
+  root.querySelector('[data-act="ready"]').addEventListener("click", () => {
     unit.textContent = "seconds";
     startCountdown();
   });

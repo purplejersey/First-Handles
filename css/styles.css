@@ -215,14 +215,17 @@ button:focus-visible, input:focus-visible {
   font-weight: 900; font-variant-numeric: tabular-nums;
 }
 .timer__unit { font-weight: 700; opacity: 0.85; }
-.drill__actions { display: flex; flex-direction: column; align-items: center; width: 100%; }
+.drill__actions { display: flex; flex-direction: column; align-items: center; width: 100%; gap: 14px; }
 .drill__actions .btn { display: none; }
 
 /* phases */
 .drill[data-phase="intro"] [data-act="start"] { display: block; }
 .drill[data-phase="countdown"] [data-act="lost"],
-.drill[data-phase="running"] [data-act="lost"] { display: block; }
+.drill[data-phase="running"] [data-act="lost"],
+.drill[data-phase="finished"] [data-act="lost"] { display: block; }
 .drill[data-phase="finished"] [data-act="done"] { display: block; }
+.drill[data-phase="paused"] [data-act="ready"] { display: block; }
+.drill[data-phase="finished"] [data-act="lost"] { min-height: 64px; font-size: var(--fs-btn); }
 .drill:not([data-phase="intro"]) .tips { display: none; }
 .drill[data-phase="finished"] .timer__value { color: var(--secondary); }
 
