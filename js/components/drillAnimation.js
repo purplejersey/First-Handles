@@ -12,7 +12,7 @@
 //   ball at the hip when paused or finished; stops when the tab is hidden.
 // - Reduced motion: static stance plus an up-and-down arrow by the ball.
 
-import { avatarMarkup, poseAvatar, rigRefs, setNumberFlip, DEFAULT_LOOK } from "./avatar.js";
+import { avatarMarkup, poseAvatar, rigRefs, setNumberFlip, applyTeamColors, DEFAULT_LOOK } from "./avatar.js";
 import { motionFor } from "./motions.js";
 
 const W = 400, H = 300;
@@ -25,39 +25,43 @@ function screenSide(hand, view) {
 }
 
 function helperMarkup(side, hand) {
-  // Drawn for the left side, then mirrored by coordinates (text never flips).
+  // A quiet label: small pill + thin arrow to the hand. Drawn for the left side,
+  // then mirrored by coordinates (text never flips).
   const right = side === "right";
   const X = (x) => (right ? W - x : x);
-  const anchor = right ? "end" : "start";
-  const textStyle = `font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-weight="900"
-    fill="var(--secondary, #FDB927)" stroke="#111" stroke-width="5" stroke-linejoin="round" paint-order="stroke"`;
-  const arrow = `M${X(48)},76 Q${X(56)},126 ${X(112)},146`;
-  const head = `M${X(100)},134 L${X(116)},147 L${X(98)},155`;
+  const label = `YOUR ${hand.toUpperCase()} HAND`;
+  const pw = 22 + label.length * 9.1;             // pill width for the 14px label
+  const px = right ? W - 12 - pw : 12;
+  const arrow = `M${X(40)},44 Q${X(44)},126 ${X(108)},152`;
+  const head = `M${X(99)},145 L${X(109)},152.5 L${X(98)},157`;
   return `
     <g class="anim__helper" aria-hidden="true">
-      <text x="${X(16)}" y="36" text-anchor="${anchor}" font-size="17" letter-spacing="1" ${textStyle}>YOUR</text>
-      <text x="${X(16)}" y="62" text-anchor="${anchor}" font-size="24" letter-spacing="0.5" ${textStyle}>${hand.toUpperCase()} HAND</text>
-      <path d="${arrow}" fill="none" stroke="#111" stroke-width="9" stroke-linecap="round"/>
-      <path d="${head}" fill="none" stroke="#111" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="${arrow}" fill="none" stroke="var(--secondary, #FDB927)" stroke-width="5" stroke-linecap="round"/>
-      <path d="${head}" fill="none" stroke="var(--secondary, #FDB927)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="${px}" y="12" width="${pw}" height="26" rx="13" fill="#0B0B12" fill-opacity="0.42"/>
+      <text x="${px + pw / 2}" y="30" text-anchor="middle" font-size="14" letter-spacing="1"
+        font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-weight="800"
+        fill="#fff">${label}</text>
+      <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path d="${arrow}" stroke="#0B0B12" stroke-opacity="0.28" stroke-width="5"/>
+        <path d="${head}" stroke="#0B0B12" stroke-opacity="0.28" stroke-width="5"/>
+        <path d="${arrow}" stroke="#fff" stroke-opacity="0.92" stroke-width="2.2"/>
+        <path d="${head}" stroke="#fff" stroke-opacity="0.92" stroke-width="2.2"/>
+      </g>
     </g>`;
 }
 
+// Painted ball sprite: a full turn about the spin axis in BALL_FRAMES frames
+// (8 x 6 grid of 192px cells). The ball rolls FRAMES_PER_BOUNCE frames (45°)
+// each dribble, carried across bounces so the seams keep turning.
+const BALL_IMG = new URL("../../assets/avatar/ball_spin.webp", import.meta.url).href;
+const BALL_FRAMES = 48, BALL_COLS = 8, FRAMES_PER_BOUNCE = 6;
+
 function ballMarkup(r) {
   return `
-    <g class="anim__ball"><g data-ball-inner>
-      <circle r="${r}" fill="var(--ball, #E8742C)"/>
-      <path d="M${r * 0.15},${-r} C${r * 0.9},${-r * 0.55} ${r * 0.95},${r * 0.45} ${r * 0.2},${r}" fill="#000" fill-opacity="0.16"/>
-      <ellipse cx="${-r * 0.38}" cy="${-r * 0.42}" rx="${r * 0.3}" ry="${r * 0.2}" fill="#fff" fill-opacity="0.3" transform="rotate(-30 ${-r * 0.38} ${-r * 0.42})"/>
-      <g fill="none" stroke="#4A230B" stroke-width="1.5" stroke-linecap="round">
-        <path d="M${-r},0 L${r},0"/>
-        <path d="M0,${-r} C${-r * 0.5},${-r * 0.4} ${-r * 0.5},${r * 0.4} 0,${r}"/>
-        <path d="M${-r * 0.7},${-r * 0.72} C${-r * 0.3},${-r * 0.3} ${-r * 0.3},${r * 0.3} ${-r * 0.7},${r * 0.72}"/>
-        <path d="M${r * 0.7},${-r * 0.72} C${r * 0.3},${-r * 0.3} ${r * 0.3},${r * 0.3} ${r * 0.7},${r * 0.72}"/>
-      </g>
-      <circle r="${r}" fill="none" stroke="#4A230B" stroke-width="1.6"/>
-    </g></g>`;
+    <g class="anim__ball">
+      <svg data-ball-inner x="${-r}" y="${-r}" width="${2 * r}" height="${2 * r}" viewBox="0 0 192 192" overflow="hidden">
+        <image href="${BALL_IMG}" width="${192 * BALL_COLS}" height="${192 * BALL_FRAMES / BALL_COLS}"/>
+      </svg>
+    </g>`;
 }
 
 export function drillAnimation({ drill, hand, view = "mirror", number = "", look = DEFAULT_LOOK }) {
@@ -73,16 +77,27 @@ export function drillAnimation({ drill, hand, view = "mirror", number = "", look
       <svg class="anim__svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
         <rect class="anim__floor" x="0" y="${motion.floor}" width="${W}" height="${H - motion.floor}" fill="var(--floor, #9AA0A6)"/>
         <rect x="0" y="${motion.floor}" width="${W}" height="2" fill="#000" fill-opacity="0.12"/>
-        <ellipse class="anim__spot" cx="0" cy="0" rx="21" ry="4.6" fill="#000" fill-opacity="0.14"
-          transform="translate(${spotX},${motion.floor + 2})"/>
+        <defs>
+          <radialGradient id="anim-shadow">
+            <stop offset="0" stop-color="#000" stop-opacity="0.75"/>
+            <stop offset="0.55" stop-color="#000" stop-opacity="0.35"/>
+            <stop offset="1" stop-color="#000" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <g class="anim__shadow" fill="url(#anim-shadow)" opacity="0.85">
+          <ellipse cx="${W / 2 - 37}" cy="${motion.floor + 0.5}" rx="20" ry="3.6"/>
+          <ellipse cx="${W / 2 + 37}" cy="${motion.floor + 0.5}" rx="20" ry="3.6"/>
+        </g>
+        <ellipse class="anim__spot" cx="0" cy="0" rx="22" ry="4.2" fill="url(#anim-shadow)" opacity="0.3"
+          transform="translate(${spotX},${(motion.ballFloor ?? motion.floor) + 1})"/>
         <g class="anim__rig" transform="translate(${W / 2},0)${flipped ? " scale(-1,1)" : ""}">
-          ${avatarMarkup({ look, number, detail: "drill", dribbleSide: "L", slot: ballMarkup(motion.ballRadius) })}
+          ${avatarMarkup({ look, number, dribbleSide: "L", slot: ballMarkup(motion.ballRadius) })}
         </g>
         <g class="anim__rm-arrow" style="display:none">
           <path d="M${rmArrowX},180 L${rmArrowX},236 M${rmArrowX - 9},190 L${rmArrowX},178 L${rmArrowX + 9},190 M${rmArrowX - 9},226 L${rmArrowX},238 L${rmArrowX + 9},226"
-            fill="none" stroke="#111" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+            fill="none" stroke="#0B0B12" stroke-opacity="0.28" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
           <path d="M${rmArrowX},180 L${rmArrowX},236 M${rmArrowX - 9},190 L${rmArrowX},178 L${rmArrowX + 9},190 M${rmArrowX - 9},226 L${rmArrowX},238 L${rmArrowX + 9},226"
-            fill="none" stroke="var(--secondary, #FDB927)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+            fill="none" stroke="#fff" stroke-opacity="0.92" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
         </g>
         ${helperMarkup(side, hand)}
       </svg>
@@ -92,18 +107,22 @@ export function drillAnimation({ drill, hand, view = "mirror", number = "", look
 export function mountDrillAnimation(stageEl) {
   const box = stageEl.querySelector(".anim");
   const svg = box?.querySelector("svg");
-  if (!svg) return { setPhase() {}, destroy() {} };
+  if (!svg) return { setPhase() {}, destroy() {}, recolor() {} };
 
   const motion = motionFor(box.dataset.drill);
   const flipped = box.dataset.side === "right";
   const refs = rigRefs(svg);
   setNumberFlip(refs, flipped);
+  applyTeamColors(svg);                               // jersey + trim in the player card's colors
   const ball = svg.querySelector(".anim__ball");
+  const ballInner = svg.querySelector("[data-ball-inner]");
   const spot = svg.querySelector(".anim__spot");
   const spotBase = spot.getAttribute("transform");
   const rmArrow = svg.querySelector(".anim__rm-arrow");
   const reducedQuery = window.matchMedia?.("(prefers-reduced-motion: reduce)");
 
+  let lastFrame = -1;
+  let bounces = 0;      // completed dribbles, so the ball's spin carries over
   let phase = "intro";
   let p = 0;            // shared clock phase, 0 -> 1 per dribble
   let last = null;
@@ -118,16 +137,27 @@ export function mountDrillAnimation(stageEl) {
     const R = motion.ballRadius;
     // Squash/stretch anchored at the bottom of the ball.
     ball.setAttribute("transform", `translate(${x},${r2(y + R)}) scale(${r2(sx)},${r2(sy)}) translate(0,${-R})`);
-    const k = 1 + 0.12 * s.touch;
+    const frame = Math.floor((bounces + (s.ball.spin ?? 0)) * FRAMES_PER_BOUNCE) % BALL_FRAMES;
+    if (frame !== lastFrame) {
+      ballInner.setAttribute("viewBox", `${(frame % BALL_COLS) * 192} ${Math.floor(frame / BALL_COLS) * 192} 192 192`);
+      lastFrame = frame;
+    }
+    // Contact shadow: grows and darkens as the ball nears the floor.
+    const near = s.near ?? s.touch;
+    const k = 0.5 + 0.5 * near + 0.1 * s.touch;
     spot.setAttribute("transform", `${spotBase} scale(${r2(k)},${r2(k)})`);
-    spot.setAttribute("fill-opacity", r2(0.14 + 0.08 * s.touch));
+    spot.setAttribute("opacity", r2(0.12 + 0.62 * near * near + 0.12 * s.touch));
   }
 
   const reduced = () => !!reducedQuery?.matches;
   const shouldMove = () => MOVING.has(phase) && !reduced() && !document.hidden;
 
   function frame(t) {
-    if (last !== null) p = (p + Math.min(0.1, (t - last) / 1000) / motion.cycle) % 1;
+    if (last !== null) {
+      const next = p + Math.min(0.1, (t - last) / 1000) / motion.cycle;
+      if (next >= 1) bounces = (bounces + 1) % BALL_FRAMES;
+      p = next % 1;
+    }
     last = t;
     render(p);
     raf = requestAnimationFrame(frame);
@@ -168,7 +198,9 @@ export function mountDrillAnimation(stageEl) {
       document.removeEventListener("visibilitychange", onVisibility);
       reducedQuery?.removeEventListener?.("change", update);
     },
-    // For tests/dev: draw a specific clock phase.
-    _renderAt(q) { render(q); },
+    // Re-apply team colors (e.g. after the colors change while mounted).
+    recolor() { return applyTeamColors(svg); },
+    // For tests/dev: draw a specific clock phase (optionally after n dribbles, for the ball's spin).
+    _renderAt(q, n) { if (n !== undefined) bounces = n % BALL_FRAMES; render(q); },
   };
 }

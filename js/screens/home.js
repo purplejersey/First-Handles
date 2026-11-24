@@ -1,7 +1,7 @@
 // Welcome / Home: greeting, player card, one big button.
 
 import { getProfile } from "../progress.js";
-import { playerCard } from "../components/playerCard.js";
+import { playerCard, mountPlayerCard } from "../components/playerCard.js";
 import { escapeHtml, wireNav } from "../ui.js";
 
 export function renderHome(root) {
@@ -13,5 +13,6 @@ export function renderHome(root) {
       <button class="btn-link" data-go="#/edit">Edit player card</button>
       <button class="btn btn-huge" data-go="#/levels">Start Training</button>
     </section>`;
+  mountPlayerCard(root);
   wireNav(root);
 }

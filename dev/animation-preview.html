@@ -20,6 +20,7 @@
     <button data-phase="paused">Freeze</button>
     <select id="jersey">
       <option value="">Purple / gold</option>
+      <option value="#4B2E83,#D9FF1F">Purple / neon</option>
       <option value="#C8102E,#F4F4F4">Red / white</option>
       <option value="#141414,#7CB8F2">Black / sky</option>
       <option value="#F4F4F4,#1D4ED8">White / royal</option>
@@ -54,6 +55,7 @@
       const s = document.documentElement.style;
       if (j) { s.setProperty("--jersey", j); s.setProperty("--jersey-trim", t); }
       else { s.removeProperty("--jersey"); s.removeProperty("--jersey-trim"); }
+      ctls.forEach((c) => c.recolor());
     });
   </script>
 </body>

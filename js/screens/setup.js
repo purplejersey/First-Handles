@@ -3,6 +3,7 @@
 import { getProfile, setProfile, resetProgress, isDevMode, setDevMode } from "../progress.js";
 import { SWATCHES } from "../data/swatches.js";
 import { applyTheme } from "../theme.js";
+import { playerCard, mountPlayerCard, updatePlayerCard } from "../components/playerCard.js";
 import { escapeHtml, go, header, wireNav } from "../ui.js";
 
 export function renderSetup(root, { editing }) {
@@ -25,6 +26,7 @@ export function renderSetup(root, { editing }) {
     ${editing ? header("Edit player card", "#/home") : `<header class="topbar"><h1>Welcome to First Handles!</h1></header>`}
     <form class="setup stack" novalidate>
       ${editing ? "" : `<p class="lead">Let's make your player card.</p>`}
+      <div class="setup-preview">${playerCard(draft)}</div>
       <label class="field">
         <span>Your name</span>
         <input name="name" type="text" maxlength="16" autocomplete="off" required value="${escapeHtml(draft.name)}">
@@ -57,6 +59,12 @@ export function renderSetup(root, { editing }) {
   // Keep the jersey number to digits only.
   numberInput.addEventListener("input", () => {
     numberInput.value = numberInput.value.replace(/\D/g, "").slice(0, 2);
+    draft.number = numberInput.value;
+    updatePlayerCard(root, draft);                   // live preview
+  });
+  form.elements.name.addEventListener("input", () => {
+    draft.name = form.elements.name.value.trim();
+    updatePlayerCard(root, draft);
   });
 
   function refreshSwatches() {
@@ -69,6 +77,7 @@ export function renderSetup(root, { editing }) {
       btn.disabled = btn.dataset.id === other;
     });
     applyTheme(draft); // live preview
+    mountPlayerCard(root);                           // card jersey in the new colors
   }
 
   root.querySelectorAll(".swatch").forEach((btn) => {

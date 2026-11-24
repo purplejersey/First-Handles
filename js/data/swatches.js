@@ -4,6 +4,7 @@
 export const SWATCHES = [
   { id: "purple", name: "Purple",       hex: "#4B2E83", ink: "#FFFFFF" },
   { id: "gold",   name: "Gold",         hex: "#FDB927", ink: "#111111" },
+  { id: "neon",   name: "Neon Yellow",  hex: "#D9FF1F", ink: "#111111" },
   { id: "royal",  name: "Royal Blue",   hex: "#1D4ED8", ink: "#FFFFFF" },
   { id: "navy",   name: "Navy",         hex: "#1E2A4A", ink: "#FFFFFF" },
   { id: "sky",    name: "Sky Blue",     hex: "#7CB8F2", ink: "#111111" },

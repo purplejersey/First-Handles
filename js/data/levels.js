@@ -39,7 +39,7 @@ export const DRILL_TIPS = {
     key: [
       "Sit in your stance: knees bent, back straight",
       "Push it, don't slap it: use your fingertips",
-      "Keep it at your hip and sneak a peek up",
+      "Pound it low by your hip, sneak a peek up",
     ],
     pro: [
       { type: "do", text: "Bounce the ball just outside your foot, on the same side as your dribbling hand" },

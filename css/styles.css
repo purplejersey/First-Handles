@@ -146,6 +146,26 @@ button:focus-visible, input:focus-visible {
 
 /* ---------- home + player card ---------- */
 .home { padding-top: calc(var(--gap) * 1.5); }
+/* Landscape tablets / laptops / TVs: card on the left, greeting + buttons on the right,
+   so everything fits without scrolling. */
+@media (min-aspect-ratio: 5/4) and (min-width: 900px) {
+  .home {
+    display: grid; align-content: center; justify-content: center;
+    grid-template-columns: auto minmax(0, 560px);
+    grid-template-areas: "card greet" "card edit" "card go";
+    column-gap: calc(var(--gap) * 2.5); row-gap: var(--gap);
+    min-height: calc(100dvh - var(--gap) * 3);
+    padding-top: 0;
+  }
+  .home > .greeting { grid-area: greet; align-self: end; }
+  .home > .player-card { grid-area: card; }
+  .home > .btn-link { grid-area: edit; justify-self: center; }
+  .home > .btn-huge {
+    grid-area: go; align-self: start; justify-self: center; min-height: 0; padding-block: 0.45em;
+    white-space: nowrap; font-size: clamp(1.8rem, 1rem + 2.4vw, 3.4rem);
+  }
+  .home .player-card__avatar { height: min(62vh, 520px); }
+}
 .greeting { font-size: clamp(2rem, 1.2rem + 4vw, 4rem); }
 .player-card {
   width: min(80vw, 320px);
@@ -155,26 +175,25 @@ button:focus-visible, input:focus-visible {
   display: flex; flex-direction: column; align-items: center; gap: 12px;
 }
 .player-card__avatar {
-  width: 70%; aspect-ratio: 1;
-  border-radius: 20px;
-  background: var(--placeholder);
-  display: grid; place-items: center;
-  position: relative; overflow: hidden;
+  /* his illustrated portrait (2:3), recolored to the team colors */
+  position: relative;
+  height: min(44vh, 380px); aspect-ratio: 2 / 3;
+  container-type: inline-size;
 }
-/* placeholder "jersey" */
-.player-card__avatar::before {
-  content: ""; position: absolute; left: 18%; right: 18%; top: 22%; bottom: 0;
-  background: var(--jersey);
-  border: 6px solid var(--jersey-trim);
-  border-bottom: 0;
-  border-radius: 30% 30% 0 0;
+.player-card__portrait {
+  display: block; width: 100%; height: 100%; object-fit: contain;
+  user-select: none; -webkit-user-drag: none;
 }
+/* his number, printed live on the jersey (block digits, clipped to the fabric) */
 .player-card__number {
-  position: relative; z-index: 1;
-  font-size: clamp(2.5rem, 2rem + 3vw, 4.5rem); font-weight: 900;
-  color: var(--jersey-trim); margin-top: 18%;
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  pointer-events: none; overflow: visible;
 }
 .player-card__name { font-size: var(--fs-huge); font-weight: 800; }
+.player-card__name:empty { display: none; }
+/* live preview on the setup / edit screen */
+.setup-preview .player-card { margin: 0 auto; padding: 12px; }
+.setup-preview .player-card__avatar { height: min(32vh, 280px); }
 
 /* ---------- level / step tiles ---------- */
 .tile-list {
