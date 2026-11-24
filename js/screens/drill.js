@@ -2,9 +2,9 @@
 // to the looping animation -> timer ends -> Done. "Lost it" (any time, even
 // right at the end) pauses until he taps "I'm ready", then restarts in full.
 
-import { DRILL_TIPS } from "../data/levels.js";
-import { completeStep, findStep, isDevMode, isStepUnlocked } from "../progress.js";
-import { drillAnimation } from "../components/drillAnimation.js";
+import { DRILLS, DRILL_TIPS } from "../data/levels.js";
+import { completeStep, findStep, getProfile, isDevMode, isStepUnlocked } from "../progress.js";
+import { drillAnimation, mountDrillAnimation } from "../components/drillAnimation.js";
 import { setPendingResult } from "./nicework.js";
 import { escapeHtml, go, handLabel, header, wireNav } from "../ui.js";
 
@@ -20,7 +20,7 @@ export function renderDrill(root, stepId) {
   root.innerHTML = `
     ${header(`${step.id} · ${handLabel(step.hand)}`, `#/level/${level.id}`)}
     <section class="drill" data-phase="intro">
-      <div class="drill__stage">${drillAnimation({ drill: step.drill, hand: step.hand })}${isDevMode() ? `<button class="dev-skip" data-act="skip" title="Developer mode: jump to time's up">Skip &#9197;</button>` : ""}</div>
+      <div class="drill__stage">${drillAnimation({ drill: step.drill, hand: step.hand, view: DRILLS[step.drill]?.view || "mirror", number: getProfile()?.number ?? "" })}${isDevMode() ? `<button class="dev-skip" data-act="skip" title="Developer mode: jump to time's up">Skip &#9197;</button>` : ""}</div>
       <div class="drill__panel">
         <ul class="tips">${tips.map((t) => `<li>${escapeHtml(t)}</li>`).join("")}</ul>
         <div class="timer" aria-live="off">
@@ -45,8 +45,11 @@ export function renderDrill(root, stepId) {
   const countdown = root.querySelector(".countdown");
   let timers = [];
   let wakeLock = null;
+  const anim = mountDrillAnimation(root.querySelector(".drill__stage"));
+  anim.setPhase("intro");
 
-  const setPhase = (phase) => { section.dataset.phase = phase; };
+  // The animation follows the drill phase (loops, or freezes in the stance).
+  const setPhase = (phase) => { section.dataset.phase = phase; anim.setPhase(phase); };
   const clearTimers = () => { timers.forEach(clearInterval); timers = []; };
 
   function startCountdown() {
@@ -131,5 +134,5 @@ export function renderDrill(root, stepId) {
 
   wireNav(root);
 
-  return () => { clearTimers(); releaseAwake(); };
+  return () => { clearTimers(); releaseAwake(); anim.destroy(); };
 }

@@ -21,6 +21,13 @@ export const LEVELS = [
   { id: 5, title: "Level 5", steps: [] },
 ];
 
+// Animation settings per drill (Chunk C). view: "mirror" shows the dribbling
+// hand on the same screen side as his hand (copy what you see); "true" shows
+// the avatar facing him, so his left hand appears on the screen's right.
+export const DRILLS = {
+  "one-hand-dribble": { view: "mirror" },
+};
+
 // Coaching content per drill (Chunk B, from Coach Dags + standard coaching cues).
 // key:   3 short cues always shown under the animation.
 // pro:   extra tips for the Pro tips panel (built later). type: "do" | "dont" | "levelup".
