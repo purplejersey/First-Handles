@@ -127,6 +127,16 @@ export function setDevMode(on) {
   save();
 }
 
+// ---------- music (on by default, saved on this device) ----------
+export function isMusicOn() {
+  return state.music !== false;
+}
+
+export function setMusicOn(on) {
+  state.music = Boolean(on);
+  save();
+}
+
 // For testing on devices. Parent controls come later.
 export function resetProgress() {
   state.completions = {};

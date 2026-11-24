@@ -9,6 +9,7 @@ import { renderLevels } from "./screens/levels.js";
 import { renderLevel } from "./screens/level.js";
 import { renderDrill } from "./screens/drill.js";
 import { renderNiceWork } from "./screens/nicework.js";
+import { initMusic } from "./music.js";
 
 const app = document.getElementById("app");
 let cleanup = null;
@@ -49,4 +50,5 @@ function route() {
 }
 
 window.addEventListener("hashchange", route);
+initMusic();
 route();

@@ -54,6 +54,7 @@ h1:focus, h2:focus { outline: none; }
   display: flex; align-items: center; gap: var(--gap);
   margin-bottom: var(--gap);
   min-height: 56px;
+  padding-right: 52px;          /* room for the music button */
 }
 .btn-back {
   font: inherit; font-weight: 700;
@@ -166,7 +167,7 @@ button:focus-visible, input:focus-visible {
   }
   .home .player-card__avatar { height: min(62vh, 520px); }
 }
-.greeting { font-size: clamp(2rem, 1.2rem + 4vw, 4rem); }
+.greeting { padding-inline: 52px; font-size: clamp(2rem, 1.2rem + 4vw, 4rem); }
 .player-card {
   width: min(80vw, 320px);
   background: var(--surface);
@@ -428,4 +429,23 @@ button:focus-visible, input:focus-visible {
   .anim { width: min(100%, calc(30svh * 4 / 3)); }
   .timer__value { font-size: 4.2rem; }
   #app { padding-bottom: 12px; }
+}
+
+/* ---------- music on/off (every screen, top-right) ---------- */
+.music-toggle {
+  position: fixed; z-index: 50;
+  top: max(10px, env(safe-area-inset-top)); right: max(10px, env(safe-area-inset-right));
+  width: 44px; height: 44px; border-radius: 50%;
+  display: grid; place-items: center; padding: 0;
+  border: 0; color: #fff; background: rgba(10, 8, 20, 0.38);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  cursor: pointer;
+}
+.music-toggle svg { width: 22px; height: 22px; }
+.music-toggle:focus-visible { outline: 3px solid var(--secondary); outline-offset: 2px; }
+@media (hover: hover) and (pointer: fine) { .music-toggle:hover { background: rgba(10, 8, 20, 0.55); } }
+/* Small phones: keep screen titles on one line beside Back and the music button. */
+@media (max-width: 400px) {
+  .topbar { padding-right: 48px; gap: 10px; }
+  .topbar h1, .topbar h2 { font-size: 1.25rem; }
 }

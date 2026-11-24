@@ -5,7 +5,7 @@
 export const LEVELS = [
   {
     id: 1,
-    title: "One-Hand Dribbling",
+    title: "One‑Handed – Pounds",
     steps: [
       { id: "1-1", hand: "left",  seconds: 15, drill: "one-hand-dribble" },
       { id: "1-2", hand: "right", seconds: 15, drill: "one-hand-dribble" },

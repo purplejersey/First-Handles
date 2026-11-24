@@ -2,6 +2,7 @@
 // to the looping animation -> timer ends -> Done. "Lost it" (any time, even
 // right at the end) pauses until he taps "I'm ready", then restarts in full.
 
+import { restartMusic } from "../music.js";
 import { DRILLS, DRILL_TIPS } from "../data/levels.js";
 import { completeStep, findStep, getProfile, isDevMode, isStepUnlocked } from "../progress.js";
 import { drillAnimation, mountDrillAnimation } from "../components/drillAnimation.js";
@@ -86,6 +87,7 @@ export function renderDrill(root, stepId) {
   function finish() {
     clearTimers();
     setPhase("finished");
+    restartMusic();                                  // the track starts over each time a drill ends
     label.textContent = "Time!";
     value.textContent = "0";
     unit.textContent = "Kept it the whole time? Tap Done";
