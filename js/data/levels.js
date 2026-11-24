@@ -15,8 +15,8 @@ export const LEVELS = [
       { id: "1-6", hand: "right", seconds: 30, drill: "one-hand-dribble" },
     ],
   },
-  { id: 2, title: "Level 2", steps: [] },
-  { id: 3, title: "Level 3", steps: [] },
+  { id: 2, title: "Floats", steps: [] },
+  { id: 3, title: "Pound + Float", steps: [] },
   { id: 4, title: "Level 4", steps: [] },
   { id: 5, title: "Level 5", steps: [] },
 ];
@@ -24,8 +24,9 @@ export const LEVELS = [
 // Coaching content per drill (Chunk B, from Coach Dags + standard coaching cues).
 // key:   3 short cues always shown under the animation.
 // pro:   extra tips for the Pro tips panel (built later). type: "do" | "dont" | "levelup".
-// stars: honor-system bonus challenges. 1 star = finish the time (always unlocks the
-//        next step). Stars stack: 3 stars means the 2-star challenge too.
+// stars: honor-system bonus challenges, picked on the "Nice work!" review. 1 star =
+//        finish the time (always unlocks the next step). Stars stack: 3 stars means
+//        the 2-star challenge too. Best per step is saved and never goes down.
 export const DRILL_TIPS = {
   "one-hand-dribble": {
     key: [
@@ -43,11 +44,10 @@ export const DRILL_TIPS = {
       { type: "dont", text: "Don't stand up tall. Stay low the whole time" },
       { type: "dont", text: "Don't stare at the ball the whole time" },
       { type: "levelup", text: "Try looking up the whole time" },
-      { type: "levelup", text: "Floats: do 2-3 pounds, then let the ball ride up with your hand while your body stays low" },
     ],
     stars: {
       2: "Eyes up the whole time",
-      3: "Eyes up + floats (2-3 pounds, then let it ride up)",
+      3: "Eyes up + stay low the whole time",
     },
   },
 };

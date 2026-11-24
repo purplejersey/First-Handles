@@ -86,6 +86,7 @@ export function completeStep(stepId) {
   const prev = state.completions[stepId];
   state.completions[stepId] = {
     count: (prev?.count || 0) + 1,
+    stars: prev?.stars || 1,
     firstAt: prev?.firstAt || now,
     lastAt: now,
   };
@@ -99,6 +100,20 @@ export function completeStep(stepId) {
   };
   window.dispatchEvent(new CustomEvent("stepcomplete", { detail: result }));
   return result;
+}
+
+// ---------- stars (honor system, best per step, never goes down) ----------
+export function getStars(stepId) {
+  const c = state.completions[stepId];
+  return c ? c.stars || 1 : 0;
+}
+
+export function setStars(stepId, stars) {
+  const c = state.completions[stepId];
+  if (!c) return 0;
+  c.stars = Math.max(c.stars || 1, Math.min(3, Math.max(1, Number(stars) || 1)));
+  save();
+  return c.stars;
 }
 
 // For testing on devices. Parent controls come later.

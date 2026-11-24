@@ -1,11 +1,18 @@
 // "Nice work!" screen after every step. Stays until he picks:
 // Next step / Retry / Back. Completion was already saved on Done.
+// Post-drill review: he taps the stars he earned (honor system). Saved on tap;
+// the best per step is kept and never goes down.
 
-import { findStep, getProfile, isStepDone } from "../progress.js";
+import { findStep, getProfile, getStars, isStepDone, setStars } from "../progress.js";
+import { DRILL_TIPS } from "../data/levels.js";
 import { showCelebration } from "../components/celebration.js";
 import { escapeHtml, go, wireNav } from "../ui.js";
 
 let pending = null;
+
+export function starString(n) {
+  return "\u2605".repeat(n) + "\u2606".repeat(3 - n);
+}
 export function setPendingResult(result) { pending = result; }
 
 export function renderNiceWork(root, stepId) {
@@ -24,13 +31,19 @@ export function renderNiceWork(root, stepId) {
       <div class="badge" aria-hidden="true">&#10003;</div>
       <h1>Nice work, ${escapeHtml(profile.name)}!</h1>
       <p class="lead">Step ${escapeHtml(step.id)} complete.</p>
+      <div class="nicework__body">
+      ${reviewHtml(step)}
       <div class="stack actions">
         ${next ? `<button class="btn btn-huge" data-go="#/drill/${next.id}">Next step</button>` : ""}
-        <button class="btn btn-big btn-quiet" data-go="#/drill/${step.id}">Retry</button>
-        <button class="btn btn-big btn-quiet" data-go="${isLast ? "#/levels" : `#/level/${level.id}`}">Back</button>
+        <div class="actions__row">
+          <button class="btn btn-big btn-quiet" data-go="#/drill/${step.id}">Retry</button>
+          <button class="btn btn-big btn-quiet" data-go="${isLast ? "#/levels" : `#/level/${level.id}`}">Back</button>
+        </div>
+      </div>
       </div>
     </section>`;
   wireNav(root);
+  wireReview(root, step);
 
   // Celebrate only right after Done (not on a page reload).
   if (pending && pending.stepId === stepId) {
@@ -42,4 +55,40 @@ export function renderNiceWork(root, stepId) {
       showCelebration({ kind: "step", title: "Step complete!" });
     }
   }
+}
+
+// ---------- post-drill review ----------
+function reviewHtml(step) {
+  const challenges = DRILL_TIPS[step.drill]?.stars || {};
+  const options = [
+    { n: 1, text: "Finished the time" },
+    { n: 2, text: challenges[2] },
+    { n: 3, text: challenges[3] },
+  ].filter((o) => o.text);
+  return `
+    <div class="review">
+      <h2 class="review__title">How did it go?</h2>
+      <p class="review__hint">Tap the stars you earned</p>
+      <div class="review__options" role="radiogroup" aria-label="Stars earned">
+        ${options.map((o) => `
+          <button class="star-opt" role="radio" aria-checked="${o.n === 1}" data-stars="${o.n}">
+            <span class="star-opt__stars" aria-hidden="true">${starString(o.n)}</span>
+            <span class="star-opt__text">${escapeHtml(o.text)}</span>
+          </button>`).join("")}
+      </div>
+      <p class="review__best" aria-live="polite"></p>
+    </div>`;
+}
+
+function wireReview(root, step) {
+  const best = root.querySelector(".review__best");
+  const showBest = () => { best.textContent = `Your best: ${starString(getStars(step.id))}`; };
+  root.querySelectorAll(".star-opt").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      root.querySelectorAll(".star-opt").forEach((b) => b.setAttribute("aria-checked", String(b === btn)));
+      setStars(step.id, btn.dataset.stars);
+      showBest();
+    });
+  });
+  showBest();
 }

@@ -1,6 +1,7 @@
 // A level's step list (e.g. 1-1 to 1-6).
 
-import { getLevel, isLevelUnlocked, isStepDone, isStepUnlocked } from "../progress.js";
+import { getLevel, getStars, isLevelUnlocked, isStepDone, isStepUnlocked } from "../progress.js";
+import { starString } from "./nicework.js";
 import { levelList, wireList } from "../components/levelList.js";
 import { go, handLabel, header, wireNav } from "../ui.js";
 
@@ -14,7 +15,7 @@ export function renderLevel(root, levelId) {
   const items = level.steps.map((step) => ({
     id: step.id,
     label: step.id,
-    sublabel: `${handLabel(step.hand)} · ${step.seconds}s`,
+    sublabel: `${handLabel(step.hand)} · ${step.seconds}s${isStepDone(step.id) ? ` · ${starString(getStars(step.id))}` : ""}`,
     state: isStepDone(step.id) ? "done" : isStepUnlocked(step.id) ? "open" : "locked",
   }));
 
