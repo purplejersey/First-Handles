@@ -3,7 +3,7 @@
 // right at the end) pauses until he taps "I'm ready", then restarts in full.
 
 import { DRILL_TIPS } from "../data/levels.js";
-import { completeStep, findStep, isStepUnlocked } from "../progress.js";
+import { completeStep, findStep, isDevMode, isStepUnlocked } from "../progress.js";
 import { drillAnimation } from "../components/drillAnimation.js";
 import { setPendingResult } from "./nicework.js";
 import { escapeHtml, go, handLabel, header, wireNav } from "../ui.js";
@@ -20,7 +20,7 @@ export function renderDrill(root, stepId) {
   root.innerHTML = `
     ${header(`${step.id} · ${handLabel(step.hand)}`, `#/level/${level.id}`)}
     <section class="drill" data-phase="intro">
-      <div class="drill__stage">${drillAnimation({ drill: step.drill, hand: step.hand })}</div>
+      <div class="drill__stage">${drillAnimation({ drill: step.drill, hand: step.hand })}${isDevMode() ? `<button class="dev-skip" data-act="skip" title="Developer mode: jump to time's up">Skip &#9197;</button>` : ""}</div>
       <div class="drill__panel">
         <ul class="tips">${tips.map((t) => `<li>${escapeHtml(t)}</li>`).join("")}</ul>
         <div class="timer" aria-live="off">
@@ -120,6 +120,13 @@ export function renderDrill(root, stepId) {
     // Saved right here, the moment Done is tapped.
     setPendingResult(completeStep(step.id));
     go(`#/done/${step.id}`);
+  });
+
+  // Developer mode only: jump straight to "time's up" (he still taps Done).
+  root.querySelector('[data-act="skip"]')?.addEventListener("click", () => {
+    countdown.textContent = "";
+    unit.textContent = "seconds";
+    finish();
   });
 
   wireNav(root);

@@ -129,8 +129,18 @@ button:focus-visible, input:focus-visible {
 .swatch:disabled { opacity: 0.2; cursor: not-allowed; }
 .form-error { margin: 0; font-weight: 700; background: #fff; color: #B00020; padding: 0.5em 0.8em; border-radius: 12px; }
 .setup .btn { align-self: center; }
-.danger-zone { text-align: center; margin-top: var(--gap); opacity: 0.8; }
+.danger-zone { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; margin-top: var(--gap); opacity: 0.8; }
 .btn-link.armed { font-weight: 800; opacity: 1; }
+.btn-link[aria-pressed="true"] { font-weight: 800; opacity: 1; }
+/* Developer mode Skip button: small, out of the way, clearly a test tool. */
+.dev-skip {
+  position: absolute; top: 8px; right: 8px; z-index: 5;
+  font: inherit; font-size: 0.8rem; font-weight: 800; cursor: pointer;
+  padding: 8px 14px; border-radius: 999px;
+  background: #111; color: #fff; border: 2px dashed #ff5ad1; opacity: 0.85;
+}
+.drill__stage { position: relative; }
+.drill[data-phase="finished"] .dev-skip { display: none; }
 
 /* ---------- home + player card ---------- */
 .home { padding-top: calc(var(--gap) * 1.5); }

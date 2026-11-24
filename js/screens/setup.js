@@ -1,6 +1,6 @@
 // First-launch setup, also reused to edit the player card.
 
-import { getProfile, setProfile, resetProgress } from "../progress.js";
+import { getProfile, setProfile, resetProgress, isDevMode, setDevMode } from "../progress.js";
 import { SWATCHES } from "../data/swatches.js";
 import { applyTheme } from "../theme.js";
 import { escapeHtml, go, header, wireNav } from "../ui.js";
@@ -46,6 +46,7 @@ export function renderSetup(root, { editing }) {
       ${editing ? `
         <div class="danger-zone">
           <button type="button" class="btn-link" data-reset>Reset progress</button>
+          <button type="button" class="btn-link" data-dev aria-pressed="${isDevMode()}">Developer mode: ${isDevMode() ? "On" : "Off"}</button>
         </div>` : ""}
     </form>`;
 
@@ -108,6 +109,17 @@ export function renderSetup(root, { editing }) {
       resetProgress();
       reset.textContent = "Progress erased";
       reset.disabled = true;
+    });
+  }
+
+  // Developer mode: adds a Skip button on drills for testing progression.
+  const dev = root.querySelector("[data-dev]");
+  if (dev) {
+    dev.addEventListener("click", () => {
+      const on = !isDevMode();
+      setDevMode(on);
+      dev.textContent = `Developer mode: ${on ? "On" : "Off"}`;
+      dev.setAttribute("aria-pressed", String(on));
     });
   }
 

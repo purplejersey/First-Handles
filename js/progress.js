@@ -116,6 +116,17 @@ export function setStars(stepId, stars) {
   return c.stars;
 }
 
+// ---------- developer mode (testing only) ----------
+// Shows a Skip button on the drill screen so progression can be tested fast.
+export function isDevMode() {
+  return Boolean(state.dev);
+}
+
+export function setDevMode(on) {
+  state.dev = Boolean(on);
+  save();
+}
+
 // For testing on devices. Parent controls come later.
 export function resetProgress() {
   state.completions = {};
