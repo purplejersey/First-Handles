@@ -1,8 +1,9 @@
 // Background music. One looping track for the whole app for now (Jon's "Jackie Moon",
 // trimmed to start 5 s in). Later the drills can get their own track.
 //
-// - Browsers block sound until the player taps or presses a key, so the music
-//   starts on the first interaction.
+// - Tries to autoplay as soon as the app opens. Browsers only allow that on sites
+//   the player uses often or installed apps; otherwise the music starts on the
+//   first tap or key press (no website can force sound before that).
 // - A small music button (top-right, every screen) turns it on/off; the choice
 //   is saved on the device.
 // - restartMusic() starts the track over (called when a drill ends).
@@ -28,8 +29,11 @@ function track() {
 }
 
 function play() {
-  if (!unlocked || !isMusicOn() || document.hidden) return;
-  track().play().catch(() => {});     // ignore autoplay refusals; the next tap retries
+  if (!isMusicOn() || document.hidden) return;
+  // Before the first tap this is an autoplay attempt: browsers allow it on sites
+  // the player uses often (and on installed apps); otherwise it's refused and the
+  // first tap or key press starts the music instead.
+  track().play().then(() => { unlocked = true; }).catch(() => {});
 }
 
 /** Start the track over from the top (e.g. when a drill ends). */
@@ -61,6 +65,8 @@ export function initMusic() {
   };
   window.addEventListener("pointerdown", unlock, true);
   window.addEventListener("keydown", unlock, true);
+
+  play();                                            // try to autoplay right away
 
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) audio?.pause();

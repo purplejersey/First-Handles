@@ -158,12 +158,14 @@ button:focus-visible, input:focus-visible {
     min-height: calc(100dvh - var(--gap) * 3);
     padding-top: 0;
   }
-  .home > .greeting { grid-area: greet; align-self: end; }
+  .home > .greeting { grid-area: greet; align-self: end; padding-inline: 0; font-size: clamp(2.4rem, 1rem + 3vw, 4.2rem); }
   .home > .player-card { grid-area: card; }
   .home > .btn-link { grid-area: edit; justify-self: center; }
   .home > .btn-huge {
-    grid-area: go; align-self: start; justify-self: center; min-height: 0; padding-block: 0.45em;
-    white-space: nowrap; font-size: clamp(1.8rem, 1rem + 2.4vw, 3.4rem);
+    grid-area: go; align-self: start; justify-self: center;
+    width: 100%; max-width: 560px; min-height: 0;
+    padding: 0.5em 0.9em; white-space: nowrap;
+    font-size: clamp(1.5rem, 0.8rem + 1.5vw, 2.6rem);   /* text always fits with room to spare */
   }
   .home .player-card__avatar { height: min(62vh, 520px); }
 }

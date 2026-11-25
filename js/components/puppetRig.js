@@ -4,14 +4,14 @@
 // rest angle (the bone's angle in the art, same convention as segAngle).
 
 export const PIECES = {
-  torso: { w: 78.44, h: 95.904, x: -38.924, y: -70.152, rest: 0.0 },
-  head: { w: 35.52, h: 36.408, x: -18.648, y: -30.044, rest: 0.0 },
+  torso: { w: 77.848, h: 95.164, x: -38.628, y: -69.412, rest: 0.0 },
+  head: { w: 35.52, h: 44.844, x: -18.648, y: -30.044, rest: 0.0 },
   hair: { w: 36.852, h: 25.752, x: -19.388, y: -47.212, rest: 0.0 },
-  upperL: { w: 33.004, h: 39.812, x: -23.68, y: -8.732, rest: 35.44 },
+  upperL: { w: 34.484, h: 39.072, x: -23.532, y: -7.992, rest: 35.44 },
   foreL: { w: 20.276, h: 24.42, x: -14.652, y: -4.736, rest: 34.59 },
   handL: { w: 17.612, h: 26.048, x: -13.912, y: -3.108, rest: 34.59 },
   thumbL: { w: 9.176, h: 10.064, x: -4.144, y: -3.996, rest: 34.59 },
-  upperR: { w: 32.56, h: 40.108, x: -9.176, y: -8.732, rest: -34.77 },
+  upperR: { w: 34.188, h: 39.22, x: -10.804, y: -7.844, rest: -34.77 },
   foreR: { w: 20.72, h: 23.976, x: -5.772, y: -4.588, rest: -33.92 },
   handR: { w: 19.98, h: 27.528, x: -3.996, y: -3.552, rest: -33.92 },
   thighL: { w: 31.524, h: 38.628, x: -22.2, y: -5.476, rest: 25.69 },
@@ -35,4 +35,4 @@ export const ART_BODY = {
 export const THUMB = { pivot: [2.072, 5.772], tip: [6.216, 10.508] };
 
 // Recolor: the art's own fabric tones (mean luminance) under each mask, per piece.
-export const RECOLOR_REFS = {"torso": {"jersey": 34.35, "trim": 219.38}};
+export const RECOLOR_REFS = {"torso": {"jersey": 34.33, "trim": 219.92}};

@@ -111,8 +111,17 @@ def seg_angle(a, b):  # same convention as avatar.js: rotation that points +y al
 pieces = {}
 REFS = {}
 
-def save(name, colors, a, pivot, rest=0.0, recolor=False):
+def despike(a, r):
+    """Grey opening with a disk: removes points and slivers thinner than ~2r px."""
+    yy0, xx0 = np.ogrid[-r:r + 1, -r:r + 1]
+    disk = (xx0 * xx0 + yy0 * yy0) <= r * r
+    opened = ndi.grey_opening(np.pad(a, r + 2), footprint=disk)[r + 2:-(r + 2), r + 2:-(r + 2)]
+    return np.minimum(a, ndi.gaussian_filter(opened, 0.6))
+
+def save(name, colors, a, pivot, rest=0.0, recolor=False, smooth=0):
     a = np.clip(a, 0, 1)
+    if smooth:
+        a = despike(a, smooth)
     ys, xs = np.where(a > 0.01)
     x0, x1, y0, y1 = xs.min() - 2, xs.max() + 3, ys.min() - 2, ys.max() + 3
     x0, y0 = max(x0, 0), max(y0, 0)
@@ -144,13 +153,57 @@ torso_vis = fig & (ndi.binary_fill_holes(tj | chest_v) | chest_v) & ~(headzone &
 # the shorts hems hang below 905 in the middle: take the shorts' purple/neon there too
 shorts_low = fig & ndi.binary_closing(jersey_px, iterations=3) & (yy >= 880) & (yy < 990) & (xx > 300) & (xx < 720)
 torso_vis |= shorts_low
-save("torso", rgb, alpha * torso_vis, J["pelvis"], recolor=True)
+# Shoulders: the torso carries the dark inside of each armhole but none of the
+# shoulder skin. The torso is drawn above
+# the upper arms, so the seam where an arm rotates is always covered by the
+# original art and never opens a sliver.
+torso_a = alpha * torso_vis
+# the chest skin in the V fades in from the top, so its edge never shows a line
+# across the neck when the head and body move a little apart
+torso_a = np.where(chest_v & ~jersey_px, torso_a * ramp(yy, 330, 372), torso_a)
+for side in ("L", "R"):
+    sx, sy = J["sh" + side]
+    d = np.hypot(xx - sx, yy - sy)
+    # no skin on the torso at the shoulders: the arm piece owns all of it (any
+    # torso-owned skin there would show as a pale sliver once the arm turns)
+    skin_here = fig & (R > B + 18) & (R > 110) & ~jersey_px & (d < 60)
+    torso_a = np.where(skin_here, 0, torso_a)
+    ax0, ax1 = (340, 392) if side == "L" else (612, 664)
+    # only the dark purple/black inside of the armhole, not the arm's brown outline
+    pit = fig & (mx < 95) & (B >= R - 8) & (xx >= ax0) & (xx < ax1) & (yy > 470) & (yy < 540)
+    pit = ndi.binary_closing(pit, iterations=2) & fig & (B >= R - 20)
+    torso_a = np.maximum(torso_a, alpha * pit)
+torso_cols = rgb.copy()
+TORSO_COVER = torso_a > 0.5
+TORSO_COVER_PIT = fig & (mx < 95) & (B >= R - 8) & (yy > 470) & (yy < 540) & (((xx >= 340) & (xx < 392)) | ((xx >= 612) & (xx < 664)))
+save("torso", torso_cols, torso_a, J["pelvis"], recolor=True, smooth=4)
 
 # ---------- head (+ neck that reaches under the collar) ----------
 head_vis = fig & headzone & ~jersey_near
-neck_ext = poly_mask([(456, 300), (570, 300), (574, 392), (452, 392)])
-cols = fill_hidden(head_vis, neck_ext)
-a = alpha * head_vis + (neck_ext & ~head_vis)
+# Neck under the collar: extend the neck straight down, exactly as wide as the neck
+# itself (column by column), painted from the neck's lowest visible pixels and
+# softened, so nothing boxy or streaky shows inside the V of the jersey.
+# the neck's own width, measured just under the jaw
+row = np.where(head_vis[338, 430:600])[0] + 430
+nx0, nx1 = int(row.min()) + 2, int(row.max()) - 2
+cols = rgb.copy()
+neck_ext = np.zeros_like(head_vis)
+for x in range(nx0, nx1 + 1):
+    ys = np.where(head_vis[300:420, x])[0]
+    if ys.size == 0:
+        continue
+    yb = 300 + ys.max()
+    src = rgb[yb - 7:yb - 2, x].mean(axis=0)               # a few px above the cut
+    neck_ext[yb - 2:450, x] = True                          # overlaps the cut: no seam
+    cols[yb - 2:450, x] = src
+    for k, yk in enumerate(range(yb - 10, yb - 2)):         # fade the art into the fill
+        t = (k + 1) / 9
+        cols[yk, x] = rgb[yk, x] * (1 - t) + src * t
+smooth_cols = np.dstack([ndi.gaussian_filter(cols[..., c], 2.5) for c in range(3)])
+band = neck_ext | ndi.binary_dilation(neck_ext, structure=np.ones((11, 1)), iterations=1)
+cols[band & ~head_vis | neck_ext] = smooth_cols[band & ~head_vis | neck_ext]
+side = ndi.gaussian_filter1d(neck_ext.astype(np.float32), 1.5, axis=1)   # soft sides only
+a = np.maximum(alpha * head_vis, np.where(neck_ext, np.clip(side * 1.6, 0, 1), 0))
 # hair: the top of the head as its own piece (for a tiny trailing bounce),
 # cross-faded with the head through the bangs so a small offset never shows a seam
 hair_t = 1 - ramp(yy, 150, 205)
@@ -162,7 +215,15 @@ def arm(side):
     sh, el, wr = J["sh" + side], J["el" + side], J["wr" + side]
     sgn = -1 if side == "L" else 1
     outside = (xx < 366) if side == "L" else (xx > 650)
-    region = component(fig & outside & ~torso_vis & ~jersey_near, el)
+    # the shoulder skin between that line and the strap belongs to the arm too
+    skin_c = fig & (R > B + 18) & (R > 110) & ~jersey_px & (yy < 470)
+    outside = outside | (skin_c & ((xx < 392) if side == "L" else (xx > 624)))
+    # keep the arm's own pixels a little away from the strap (the art's dark edge
+    # line along the strap stays with the jersey); the gap is filled with skin
+    strap_band = ndi.binary_dilation(jersey_px, iterations=7) & (yy < 480)
+    region = component(fig & outside & ~torso_vis & ~jersey_near & ~strap_band & ~TORSO_COVER_PIT, el)
+    # trim the pointed tip where the arm met the top of the strap in the art
+    region &= ~((yy < sh[1] - 50) & (ndi.distance_transform_edt(~jersey_px) < 16))
     tu, offu, Lu = proj(sh, el)
     tf, offf, Lf = proj(el, wr)
     # upper arm: shoulder cap to a little past the elbow (under the forearm). Past
@@ -170,10 +231,31 @@ def arm(side):
     # forearm when the elbow bends.
     depth = ndi.distance_transform_edt(region)                      # px in from the arm's outline
     up_vis = region & (tf < 24) & ((tf <= 0) | (depth > 9 * np.clip(tf, 0, 24) / 24))
-    up_ext = (offu < 46) & (tu > -40) & (tu < Lu * 0.45) & ~outside  # under the jersey edge
+    # under the jersey edge, including the thin band right beside the strap
+    up_ext = (offu < 46) & (tu > -60) & (tu < Lu * 0.45) & (~outside | (fig & ~region & ndi.binary_dilation(region, iterations=8)))
+    # fill the concave corner where the top of the arm meets the jersey strap, so
+    # turning the arm a little never opens a notch there
+    sx_, sy_ = sh
+    near_top = (np.hypot(xx - sx_, yy - (sy_ - 30)) < 34)
+    yy2, xx2 = np.ogrid[-10:11, -10:11]
+    comb = np.pad((region | jersey_px) & near_top, 12)
+    closed_c = ndi.binary_closing(comb, structure=(xx2 * xx2 + yy2 * yy2) <= 100)[12:-12, 12:-12]
+    up_ext |= closed_c & ~fig & near_top
+    # round off the top of the shoulder: close the V between the pointed tip
+    # (where the arm met the strap in the art) and the hidden cap, so turning the
+    # arm never opens a notch beside the strap
+    yy3, xx3 = np.ogrid[-16:17, -16:17]
+    top_zone = (tu < Lu * 0.4)
+    m0 = np.pad((up_vis | up_ext) & top_zone, 20)
+    rounded = ndi.binary_closing(m0, structure=(xx3 * xx3 + yy3 * yy3) <= 256)[20:-20, 20:-20]
+    rounded &= ~(outside & ~fig & (offu > 30)) | ~outside   # don't bulge past the outer outline
+    up_ext = up_ext | (rounded & top_zone & ~up_vis)
+    tip_zone = (yy < sh[1] - 50) & (ndi.distance_transform_edt(~jersey_px) < 16)
+    up_ext &= ~((yy < sh[1] - 50) & ~fig) & ~tip_zone   # nothing pokes above the shoulder line
     cols = fill_hidden(up_vis, up_ext)
     up_a = (alpha * up_vis + (up_ext & ~up_vis)) * np.where(tf > 0, ramp(-tf, -24, -6), 1)
-    save("upper" + side, cols, up_a, sh, seg_angle(sh, el))
+
+    save("upper" + side, cols, up_a, sh, seg_angle(sh, el), smooth=4)
     # forearm: feathered top over the elbow, ends a little past the wrist
     tf_w, _, _ = proj(wr, (wr[0] + (wr[0] - el[0]), wr[1] + (wr[1] - el[1])))
     fo = region & (tu > Lu - 30) & (tf_w < 18)
