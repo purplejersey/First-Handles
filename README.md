@@ -2,6 +2,8 @@
 
 A dribbling-training web app for youth basketball players. Static HTML/CSS/JS, no build step, hosted on GitHub Pages.
 
+Agents: start with `AGENTS.md` and `docs/BRIEF.md`.
+
 ## Layout
 - `js/data/levels.js`: levels and steps (new levels are data, not code)
 - `js/data/swatches.js`: preset team colors
