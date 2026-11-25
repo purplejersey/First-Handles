@@ -135,15 +135,7 @@ button:focus-visible, input:focus-visible, [tabindex]:focus-visible {
   color: var(--secondary-ink); background: var(--secondary);
   padding: 0.06em 0.32em 0.04em; clip-path: var(--slant-sm);
 }
-.logo__ball {
-  width: 0.92em; height: 0.92em; border-radius: 50%; flex: none;
-  background:
-    radial-gradient(circle at 35% 30%, rgba(255,255,255,0.45), transparent 40%),
-    linear-gradient(90deg, transparent 47%, #2a130a 47% 53%, transparent 53%),
-    linear-gradient(0deg, transparent 47%, #2a130a 47% 53%, transparent 53%),
-    radial-gradient(circle, #f0812f, #c4501a);
-  box-shadow: inset 0 0 0 2px #2a130a;
-}
+.logo__ball { width: 1em; height: 1em; flex: none; transform: rotate(-18deg); margin-right: 0.08em; }
 .logo--xl { font-size: clamp(2.6rem, 1.4rem + 6vw, 6.5rem); }
 
 /* ---------- title screen ---------- */
@@ -433,3 +425,24 @@ h1:focus, h2:focus, h1:focus-visible, h2:focus-visible { outline: none; }   /* r
 h1[tabindex]:focus, h2[tabindex]:focus, h1[tabindex]:focus-visible, h2[tabindex]:focus-visible { outline: none; }
 .bcast__band { padding-top: 0.55em; }
 .bcast__kicker { line-height: 1.3; }
+
+/* ---------- Settings button (home) ---------- */
+.btn-settings {
+  display: inline-flex; align-items: center; gap: 0.5em;
+  font-family: var(--display); font-style: italic; text-transform: uppercase; letter-spacing: 0.06em;
+  font-size: clamp(1rem, 0.85rem + 0.6vw, 1.35rem);
+  color: var(--ink); cursor: pointer;
+  background: rgba(255, 255, 255, 0.08);
+  border: 0; clip-path: var(--slant-sm);
+  padding: 0.5em 1.3em; min-height: 48px;
+  box-shadow: inset 0 -3px 0 var(--secondary);
+  transition: background 150ms ease, transform 90ms ease-out;
+}
+.btn-settings svg { width: 1.15em; height: 1.15em; color: var(--secondary); transition: transform 300ms ease; }
+.btn-settings:active { transform: translateY(2px); }
+@media (hover: hover) and (pointer: fine) {
+  .btn-settings:hover { background: rgba(255, 255, 255, 0.14); }
+  .btn-settings:hover svg { transform: rotate(60deg); }
+}
+.home > .btn-settings { justify-self: center; }
+@media (min-aspect-ratio: 5/4) and (min-width: 900px) { .home > .btn-settings { grid-area: edit; } }

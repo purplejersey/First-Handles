@@ -160,7 +160,7 @@ button:focus-visible, input:focus-visible {
   }
   .home > .greeting { grid-area: greet; align-self: end; padding-inline: 0; font-size: clamp(2.4rem, 1rem + 3vw, 4.2rem); }
   .home > .player-card { grid-area: card; }
-  .home > .btn-link { grid-area: edit; justify-self: center; }
+  .home > .btn-link, .home > .btn-settings { grid-area: edit; justify-self: center; }
   .home > .btn-huge {
     grid-area: go; align-self: start; justify-self: center;
     width: 100%; max-width: 560px; min-height: 0;

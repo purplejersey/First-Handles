@@ -23,7 +23,7 @@ export function renderSetup(root, { editing }) {
     </div>`;
 
   root.innerHTML = `
-    ${editing ? header("Edit player card", "#/home") : `<header class="topbar"><h1>Welcome to First Handles!</h1></header>`}
+    ${editing ? header("Settings", "#/home") : `<header class="topbar"><h1>Welcome to First Handles!</h1></header>`}
     <form class="setup stack" novalidate>
       ${editing ? "" : `<p class="lead">Let's make your player card.</p>`}
       <div class="setup-preview">${playerCard(draft)}</div>
