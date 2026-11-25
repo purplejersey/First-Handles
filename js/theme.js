@@ -16,5 +16,5 @@ export function applyTheme(profile) {
   root.setProperty("--jersey", primary.hex);
   root.setProperty("--jersey-trim", secondary.hex);
   const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute("content", primary.hex);
+  if (meta) meta.setAttribute("content", "#0b0912");   // dark game chrome
 }

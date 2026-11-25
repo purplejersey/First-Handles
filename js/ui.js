@@ -31,3 +31,8 @@ export function wireNav(root) {
     node.addEventListener("click", () => go(node.dataset.go));
   });
 }
+
+// The game's wordmark (type only, styled in CSS).
+export function logo(size = "") {
+  return `<span class="logo ${size}" aria-label="First Handles"><span class="logo__ball" aria-hidden="true"></span><span class="logo__a">First</span><span class="logo__b">Handles</span></span>`;
+}

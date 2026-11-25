@@ -116,6 +116,16 @@ export function setStars(stepId, stars) {
   return c.stars;
 }
 
+/** Totals for the player card: steps finished, stars earned, reps (times finished). */
+export function getTotals() {
+  const all = Object.values(state.completions);
+  return {
+    steps: all.length,
+    stars: all.reduce((n, c) => n + (c.stars || 1), 0),
+    reps: all.reduce((n, c) => n + (c.count || 1), 0),
+  };
+}
+
 // ---------- developer mode (testing only) ----------
 // Shows a Skip button on the drill screen so progression can be tested fast.
 export function isDevMode() {

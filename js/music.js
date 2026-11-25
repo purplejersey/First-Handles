@@ -1,31 +1,38 @@
-// Background music. One looping track for the whole app for now (Jon's "Jackie Moon",
-// trimmed to start 5 s in). Later the drills can get their own track.
+// Background music: two looping tracks by Jon (Suno, "johnnycito").
+//   menu:  "Jackie Moon", trimmed to start 5 s in. Every screen except a running drill.
+//   drill: "Nostalgia", trimmed to start 10 s in. From Start (3-2-1) until time's up.
 //
 // - Tries to autoplay as soon as the app opens. Browsers only allow that on sites
 //   the player uses often or installed apps; otherwise the music starts on the
 //   first tap or key press (no website can force sound before that).
 // - A small music button (top-right, every screen) turns it on/off; the choice
 //   is saved on the device.
-// - restartMusic() starts the track over (called when a drill ends).
+// - setTrack(name, { restart }) switches tracks; restartMusic() = menu from the top
+//   (called when a drill ends).
 // - Pauses while the tab is hidden.
 
 import { isMusicOn, setMusicOn } from "./progress.js";
 
-const SRC = new URL("../assets/audio/menu.mp3", import.meta.url).href;
-const VOLUME = 0.45;
+const SRC = {
+  menu: new URL("../assets/audio/menu.mp3", import.meta.url).href,
+  drill: new URL("../assets/audio/drill.mp3", import.meta.url).href,
+};
+const VOLUME = { menu: 0.45, drill: 0.5 };
 
-let audio = null;
+const tracks = {};
+let current = "menu";
 let unlocked = false;   // the player has interacted, so playback is allowed
 let button = null;
 
-function track() {
-  if (!audio) {
-    audio = new Audio(SRC);
-    audio.loop = true;
-    audio.preload = "auto";
-    audio.volume = VOLUME;
+function track(name = current) {
+  if (!tracks[name]) {
+    const a = new Audio(SRC[name]);
+    a.loop = true;
+    a.preload = name === "menu" ? "auto" : "metadata";
+    a.volume = VOLUME[name];
+    tracks[name] = a;
   }
-  return audio;
+  return tracks[name];
 }
 
 function play() {
@@ -36,11 +43,28 @@ function play() {
   track().play().then(() => { unlocked = true; }).catch(() => {});
 }
 
-/** Start the track over from the top (e.g. when a drill ends). */
-export function restartMusic() {
-  const a = track();
-  a.currentTime = 0;
+function pauseAll() {
+  Object.values(tracks).forEach((a) => a.pause());
+}
+
+/** Switch to a track ("menu" | "drill"). restart: start it from the top. */
+export function setTrack(name, { restart = false } = {}) {
+  if (name !== current) {
+    pauseAll();
+    current = name;
+  }
+  if (restart) track().currentTime = 0;
   play();
+}
+
+/** The menu track from the top (called when a drill ends). */
+export function restartMusic() {
+  setTrack("menu", { restart: true });
+}
+
+/** Warm up the drill track so it starts instantly on Start. */
+export function preloadDrillMusic() {
+  track("drill").preload = "auto";
 }
 
 const ICON_ON = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 17.5a2.5 2.5 0 1 1-2.5-2.5c.53 0 1.02.16 1.5.43V5.5l11-2.5v11.5a2.5 2.5 0 1 1-2.5-2.5c.53 0 1.02.16 1.5.43V7.1l-9 2.05Z" fill="currentColor"/></svg>`;
@@ -69,7 +93,7 @@ export function initMusic() {
   play();                                            // try to autoplay right away
 
   document.addEventListener("visibilitychange", () => {
-    if (document.hidden) audio?.pause();
+    if (document.hidden) pauseAll();
     else play();
   });
 
@@ -79,7 +103,7 @@ export function initMusic() {
   button.addEventListener("click", () => {
     const on = !isMusicOn();
     setMusicOn(on);
-    if (on) play(); else audio?.pause();
+    if (on) play(); else pauseAll();
     renderButton();
   });
   document.body.append(button);

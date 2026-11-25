@@ -28,9 +28,13 @@ export function renderNiceWork(root, stepId) {
 
   root.innerHTML = `
     <section class="nicework stack center">
-      <div class="badge" aria-hidden="true">&#10003;</div>
-      <h1>Nice work, ${escapeHtml(profile.name)}!</h1>
-      <p class="lead">Step ${escapeHtml(step.id)} complete.</p>
+      <div class="bcast" aria-hidden="false">
+        <div class="bcast__band">
+          <span class="bcast__kicker">Step ${escapeHtml(step.id)} complete</span>
+          <h1 class="bcast__title">Nice work!</h1>
+        </div>
+        <div class="bcast__tag"><b>#${escapeHtml(profile.number ?? "")}</b> ${escapeHtml(profile.name)}</div>
+      </div>
       <div class="nicework__body">
       ${reviewHtml(step)}
       <div class="stack actions">

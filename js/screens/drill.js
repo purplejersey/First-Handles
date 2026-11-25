@@ -2,7 +2,7 @@
 // to the looping animation -> timer ends -> Done. "Lost it" (any time, even
 // right at the end) pauses until he taps "I'm ready", then restarts in full.
 
-import { restartMusic } from "../music.js";
+import { restartMusic, setTrack, preloadDrillMusic } from "../music.js";
 import { DRILLS, DRILL_TIPS } from "../data/levels.js";
 import { completeStep, findStep, getProfile, isDevMode, isStepUnlocked } from "../progress.js";
 import { drillAnimation, mountDrillAnimation } from "../components/drillAnimation.js";
@@ -60,13 +60,18 @@ export function renderDrill(root, stepId) {
     label.textContent = "Get ready";
     keepAwake();
     let n = 3;
-    countdown.textContent = n;
+    const show = (text) => {                        // each number punches in
+      countdown.textContent = text;
+      countdown.classList.remove("pop"); void countdown.offsetWidth; countdown.classList.add("pop");
+    };
+    show(n);
     timers.push(setInterval(() => {
       n -= 1;
       if (n > 0) {
-        countdown.textContent = n;
+        show(n);
       } else {
-        countdown.textContent = "";
+        show("GO!");
+        setTimeout(() => { if (countdown.textContent === "GO!") countdown.textContent = ""; }, 650);
         startTimer();
       }
     }, 1000));
@@ -87,7 +92,8 @@ export function renderDrill(root, stepId) {
   function finish() {
     clearTimers();
     setPhase("finished");
-    restartMusic();                                  // the track starts over each time a drill ends
+    ended = true;
+    restartMusic();                                  // menu track from the top each time a drill ends
     label.textContent = "Time!";
     value.textContent = "0";
     unit.textContent = "Kept it the whole time? Tap Done";
@@ -115,10 +121,16 @@ export function renderDrill(root, stepId) {
     root.querySelector('[data-act="ready"]').focus();
   }
 
-  root.querySelector('[data-act="start"]').addEventListener("click", startCountdown);
+  preloadDrillMusic();
+  let ended = false;                                 // drill track plays from Start until time's up
+  root.querySelector('[data-act="start"]').addEventListener("click", () => {
+    setTrack("drill", { restart: true });
+    startCountdown();
+  });
   root.querySelector('[data-act="lost"]').addEventListener("click", pause);
   root.querySelector('[data-act="ready"]').addEventListener("click", () => {
     unit.textContent = "seconds";
+    if (ended) { ended = false; setTrack("drill", { restart: true }); }
     startCountdown();
   });
   root.querySelector('[data-act="done"]').addEventListener("click", () => {
@@ -136,5 +148,5 @@ export function renderDrill(root, stepId) {
 
   wireNav(root);
 
-  return () => { clearTimers(); releaseAwake(); anim.destroy(); };
+  return () => { clearTimers(); releaseAwake(); anim.destroy(); setTrack("menu"); };
 }

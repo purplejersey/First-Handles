@@ -9,7 +9,7 @@ with sync_playwright() as p:
     for (w,h) in SIZES:
         pg = b.new_page(viewport={"width":w,"height":h})
         pg.on("pageerror", lambda e: errs.append(str(e)))
-        pg.add_init_script(f"localStorage.setItem('firstHandles.v1', {json.dumps(json.dumps(STATE))})")
+        pg.add_init_script(f"localStorage.setItem('firstHandles.v1', {json.dumps(json.dumps(STATE))}); sessionStorage.setItem('firstHandles.titleSeen','1')")
         pg.goto("http://localhost:8765/#/drill/1-1"); pg.wait_for_timeout(700)
         start = pg.get_by_role("button", name="Start")
         sb = start.bounding_box(); anim = pg.locator(".anim").bounding_box()
@@ -20,7 +20,7 @@ with sync_playwright() as p:
         pg.close()
     # motion + freeze + frame cost on one size
     pg = b.new_page(viewport={"width":1024,"height":700})
-    pg.add_init_script(f"localStorage.setItem('firstHandles.v1', {json.dumps(json.dumps(STATE))})")
+    pg.add_init_script(f"localStorage.setItem('firstHandles.v1', {json.dumps(json.dumps(STATE))}); sessionStorage.setItem('firstHandles.titleSeen','1')")
     pg.goto("http://localhost:8765/#/drill/1-1"); pg.wait_for_timeout(600)
     t = lambda: pg.evaluate("document.querySelector('.anim__ball').getAttribute('transform')")
     a = t(); pg.wait_for_timeout(130); bb = t()
@@ -35,7 +35,7 @@ with sync_playwright() as p:
     pg.close()
     # reduced motion
     ctx = b.new_context(viewport={"width":1024,"height":700}, reduced_motion="reduce")
-    pg = ctx.new_page(); pg.add_init_script(f"localStorage.setItem('firstHandles.v1', {json.dumps(json.dumps(STATE))})")
+    pg = ctx.new_page(); pg.add_init_script(f"localStorage.setItem('firstHandles.v1', {json.dumps(json.dumps(STATE))}); sessionStorage.setItem('firstHandles.titleSeen','1')")
     pg.goto("http://localhost:8765/#/drill/1-1"); pg.wait_for_timeout(600)
     a = t(); pg.wait_for_timeout(200); bb = t()
     arrow = pg.evaluate("getComputedStyle(document.querySelector('.anim__rm-arrow')).display")

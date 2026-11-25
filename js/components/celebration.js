@@ -11,10 +11,10 @@ export function showCelebration({ kind, title }) {
     pop.setAttribute("aria-modal", "true");
     pop.setAttribute("aria-label", title);
     pop.innerHTML = `
-      <div class="celebrate__card">
+      <div class="celebrate__band">
         <div class="celebrate__art" aria-hidden="true">${kind === "level" ? "&#127942;" : "&#11088;"}</div>
         <h2 class="celebrate__title">${title}</h2>
-        <button class="btn btn-big">${kind === "level" ? "Awesome!" : "Yes!"}</button>
+        <button class="btn btn-big">${kind === "level" ? "Let's go!" : "Yes!"}</button>
       </div>`;
     root.appendChild(pop);
     const btn = pop.querySelector("button");
@@ -31,6 +31,6 @@ export function showCelebration({ kind, title }) {
     pop.addEventListener("click", (e) => { if (e.target === pop) close(); });
     pop.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
     // Small step pop-ups tidy themselves away; level ones wait for a tap.
-    if (kind === "step") setTimeout(close, 2500);
+    if (kind === "step") setTimeout(close, 1600);
   });
 }

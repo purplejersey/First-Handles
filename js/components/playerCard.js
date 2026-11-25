@@ -36,17 +36,28 @@ function numberLayer(number, id) {
     </g>`;
 }
 
-export function playerCard(profile) {
+// stats (optional): { stars, steps } shown as badges on the card.
+export function playerCard(profile, stats = null) {
   const name = profile?.name ? escapeHtml(profile.name) : "";
   const number = escapeHtml(String(profile?.number ?? "").slice(0, 2));
   return `
-    <div class="player-card" aria-label="Player card: ${name || "player"}${number ? `, number ${number}` : ""}">
+    <div class="player-card" aria-label="Player card: ${name || "player"}${number ? `, number ${number}` : ""}${stats ? `, ${stats.stars} stars, ${stats.steps} steps done` : ""}">
+      <div class="player-card__shine" aria-hidden="true"></div>
       <div class="player-card__avatar" aria-hidden="true">
         <img class="player-card__portrait" src="${ASSET("portrait")}" alt="" draggable="false">
         <svg class="player-card__number" viewBox="0 0 1024 1536" preserveAspectRatio="xMidYMid meet"
           data-id="${++cardIds}" focusable="false">${numberLayer(number, cardIds)}</svg>
       </div>
-      <div class="player-card__name">${name}</div>
+      <div class="player-card__plate">
+        <span class="player-card__num" aria-hidden="true">${number ? `#${number}` : ""}</span>
+        <span class="player-card__name">${name}</span>
+      </div>
+      ${stats ? `
+      <div class="player-card__stats" aria-hidden="true">
+        <span class="stat"><b>${stats.stars}</b><small>Stars</small></span>
+        <span class="stat"><b>${stats.steps}</b><small>Steps</small></span>
+        <span class="stat"><b>${stats.reps}</b><small>Reps</small></span>
+      </div>` : ""}
     </div>`;
 }
 
@@ -67,5 +78,7 @@ export function updatePlayerCard(root, profile) {
   const name = root.querySelector(".player-card__name");
   const digits = String(profile?.number ?? "").slice(0, 2);
   if (num) num.innerHTML = numberLayer(digits, num.dataset.id);
+  const plate = root.querySelector(".player-card__num");
+  if (plate) plate.textContent = digits ? `#${digits}` : "";
   if (name) name.textContent = profile?.name || "";
 }

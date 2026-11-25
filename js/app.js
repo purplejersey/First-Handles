@@ -10,6 +10,7 @@ import { renderLevel } from "./screens/level.js";
 import { renderDrill } from "./screens/drill.js";
 import { renderNiceWork } from "./screens/nicework.js";
 import { initMusic } from "./music.js";
+import { showTitleScreen } from "./components/titleScreen.js";
 
 const app = document.getElementById("app");
 let cleanup = null;
@@ -44,6 +45,7 @@ function route() {
     return;
   }
   cleanup = render() || null;
+  app.classList.remove("screen-in"); void app.offsetWidth; app.classList.add("screen-in");
   window.scrollTo(0, 0);
   const heading = app.querySelector("h1, h2");
   if (heading) { heading.setAttribute("tabindex", "-1"); heading.focus({ preventScroll: true }); }
@@ -52,3 +54,4 @@ function route() {
 window.addEventListener("hashchange", route);
 initMusic();
 route();
+showTitleScreen();

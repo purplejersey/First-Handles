@@ -53,6 +53,8 @@ function helperMarkup(side, hand) {
 // (8 x 6 grid of 192px cells). The ball rolls FRAMES_PER_BOUNCE frames (45°)
 // each dribble, carried across bounces so the seams keep turning.
 const BALL_IMG = new URL("../../assets/avatar/ball_spin.webp", import.meta.url).href;
+// Streetball court backdrop (placeholder art made in code: tools/avatar/court_bg.py).
+const SCENE_IMG = new URL("../../assets/scene/court.webp", import.meta.url).href;
 const BALL_FRAMES = 48, BALL_COLS = 8, FRAMES_PER_BOUNCE = 6;
 
 function ballMarkup(r) {
@@ -75,8 +77,14 @@ export function drillAnimation({ drill, hand, view = "mirror", number = "", look
     <div class="anim" role="img" aria-label="Animation: ${label}"
       data-drill="${drill}" data-hand="${hand}" data-view="${view}" data-side="${side}">
       <svg class="anim__svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
-        <rect class="anim__floor" x="0" y="${motion.floor}" width="${W}" height="${H - motion.floor}" fill="var(--floor, #9AA0A6)"/>
-        <rect x="0" y="${motion.floor}" width="${W}" height="2" fill="#000" fill-opacity="0.12"/>
+        <image class="anim__scene" href="${SCENE_IMG}" x="0" y="0" width="${W}" height="${H}" preserveAspectRatio="none"/>
+        <defs>
+          <radialGradient id="anim-team-glow" cx="0.5" cy="0.38" r="0.6">
+            <stop offset="0" stop-color="var(--jersey, #4B2E83)" stop-opacity="0.38"/>
+            <stop offset="1" stop-color="var(--jersey, #4B2E83)" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <rect x="0" y="0" width="${W}" height="${H}" fill="url(#anim-team-glow)" style="mix-blend-mode:screen"/>
         <defs>
           <radialGradient id="anim-shadow">
             <stop offset="0" stop-color="#000" stop-opacity="0.75"/>
@@ -84,7 +92,7 @@ export function drillAnimation({ drill, hand, view = "mirror", number = "", look
             <stop offset="1" stop-color="#000" stop-opacity="0"/>
           </radialGradient>
         </defs>
-        <g class="anim__shadow" fill="url(#anim-shadow)" opacity="0.85">
+        <g class="anim__shadow" fill="url(#anim-shadow)" opacity="1">
           <ellipse cx="${W / 2 - 37}" cy="${motion.floor + 0.5}" rx="20" ry="3.6"/>
           <ellipse cx="${W / 2 + 37}" cy="${motion.floor + 0.5}" rx="20" ry="3.6"/>
         </g>
@@ -146,7 +154,7 @@ export function mountDrillAnimation(stageEl) {
     const near = s.near ?? s.touch;
     const k = 0.5 + 0.5 * near + 0.1 * s.touch;
     spot.setAttribute("transform", `${spotBase} scale(${r2(k)},${r2(k)})`);
-    spot.setAttribute("opacity", r2(0.12 + 0.62 * near * near + 0.12 * s.touch));
+    spot.setAttribute("opacity", r2(0.2 + 0.7 * near * near + 0.1 * s.touch));
   }
 
   const reduced = () => !!reducedQuery?.matches;
