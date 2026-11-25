@@ -15,7 +15,8 @@ export function renderLevel(root, levelId) {
   const items = level.steps.map((step) => ({
     id: step.id,
     label: step.id,
-    sublabel: `${handLabel(step.hand)} · ${step.seconds}s${isStepDone(step.id) ? ` · ${starString(getStars(step.id))}` : ""}`,
+    sublabel: `${handLabel(step.hand)} · ${step.seconds}s`,
+    meta: isStepDone(step.id) ? starString(getStars(step.id)) : "",
     state: isStepDone(step.id) ? "done" : isStepUnlocked(step.id) ? "open" : "locked",
   }));
 

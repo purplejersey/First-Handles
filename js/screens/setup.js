@@ -6,6 +6,8 @@ import { applyTheme } from "../theme.js";
 import { playerCard, mountPlayerCard, updatePlayerCard } from "../components/playerCard.js";
 import { escapeHtml, go, header, wireNav } from "../ui.js";
 
+const RESET_ICON = `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 5V2L7 6l5 4V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7Z"/></svg>`;
+
 export function renderSetup(root, { editing }) {
   const existing = getProfile();
   const draft = {
@@ -24,32 +26,57 @@ export function renderSetup(root, { editing }) {
 
   root.innerHTML = `
     ${editing ? header("Settings", "#/home") : `<header class="topbar"><h1>Welcome to First Handles!</h1></header>`}
-    <form class="setup stack" novalidate>
+    <form class="setup" novalidate>
       ${editing ? "" : `<p class="lead">Let's make your player card.</p>`}
       <div class="setup-preview">${playerCard(draft)}</div>
-      <label class="field">
-        <span>Your name</span>
-        <input name="name" type="text" maxlength="16" autocomplete="off" required value="${escapeHtml(draft.name)}">
-      </label>
-      <label class="field">
-        <span>Jersey number</span>
-        <input name="number" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" required value="${escapeHtml(draft.number)}">
-      </label>
-      <fieldset class="field">
-        <legend>Main team color</legend>
-        ${swatchRow("primary")}
-      </fieldset>
-      <fieldset class="field">
-        <legend>Accent color</legend>
-        ${swatchRow("secondary")}
-      </fieldset>
-      <p class="form-error" role="alert" hidden></p>
-      <button type="submit" class="btn btn-big">${editing ? "Save" : "Let's go!"}</button>
-      ${editing ? `
-        <div class="danger-zone">
-          <button type="button" class="btn-link" data-reset>Reset progress</button>
-          <button type="button" class="btn-link" data-dev aria-pressed="${isDevMode()}">Developer mode: ${isDevMode() ? "On" : "Off"}</button>
-        </div>` : ""}
+      <div class="setup-controls">
+        <section class="panel">
+          <h2 class="panel__title">Player</h2>
+          <div class="field-row">
+            <label class="field field--grow">
+              <span>Name</span>
+              <input name="name" type="text" maxlength="16" autocomplete="off" required value="${escapeHtml(draft.name)}">
+            </label>
+            <label class="field field--num">
+              <span>Number</span>
+              <input name="number" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" required value="${escapeHtml(draft.number)}">
+            </label>
+          </div>
+        </section>
+        <section class="panel">
+          <h2 class="panel__title">Team colors</h2>
+          <fieldset class="field">
+            <legend>Jersey</legend>
+            ${swatchRow("primary")}
+          </fieldset>
+          <fieldset class="field">
+            <legend>Accent</legend>
+            ${swatchRow("secondary")}
+          </fieldset>
+        </section>
+        <p class="form-error" role="alert" hidden></p>
+        <button type="submit" class="btn btn-big setup-save">${editing ? "Save" : "Let's go!"}</button>
+        ${editing ? `
+          <section class="panel panel--quiet">
+            <h2 class="panel__title">More</h2>
+            <div class="setting-row">
+              <div class="setting-row__text">
+                <span class="setting-row__label">Developer mode</span>
+                <span class="setting-row__hint">Adds a Skip button to drills, for testing</span>
+              </div>
+              <button type="button" class="switch" role="switch" data-dev aria-checked="${isDevMode()}" aria-label="Developer mode">
+                <span class="switch__knob"></span>
+              </button>
+            </div>
+            <div class="setting-row">
+              <div class="setting-row__text">
+                <span class="setting-row__label">Reset progress</span>
+                <span class="setting-row__hint" data-reset-hint>Erases all steps and stars. Player card stays.</span>
+              </div>
+              <button type="button" class="btn-danger" data-reset>${RESET_ICON}<span>Reset</span></button>
+            </div>
+          </section>` : ""}
+      </div>
     </form>`;
 
   const form = root.querySelector("form");
@@ -109,14 +136,19 @@ export function renderSetup(root, { editing }) {
   if (reset) {
     let armed = false;
     reset.addEventListener("click", () => {
+      const label = reset.querySelector("span");
+      const hint = root.querySelector("[data-reset-hint]");
       if (!armed) {
         armed = true;
-        reset.textContent = "Tap again to erase all progress";
+        label.textContent = "Tap to confirm";
+        hint.textContent = "Tap again to erase all progress.";
         reset.classList.add("armed");
         return;
       }
       resetProgress();
-      reset.textContent = "Progress erased";
+      label.textContent = "Erased";
+      hint.textContent = "Progress erased.";
+      reset.classList.remove("armed");
       reset.disabled = true;
     });
   }
@@ -127,8 +159,7 @@ export function renderSetup(root, { editing }) {
     dev.addEventListener("click", () => {
       const on = !isDevMode();
       setDevMode(on);
-      dev.textContent = `Developer mode: ${on ? "On" : "Off"}`;
-      dev.setAttribute("aria-pressed", String(on));
+      dev.setAttribute("aria-checked", String(on));
     });
   }
 
