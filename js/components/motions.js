@@ -3,6 +3,8 @@
 // space with the dribbling hand on the screen-left side ("L"). The engine
 // flips the result for the other side. New moves = new entries here.
 
+import { createPoundMotion } from "./poundMotion.js";
+
 const R = 19;          // ball radius (sized to the illustrated avatar)
 const FLOOR = 258;     // floor line in the 0-300 box (where the shoes stand)
 const BALL_FLOOR = 268; // the ball bounces just outside and in front of the foot, so lower on screen
@@ -48,7 +50,7 @@ const P_CATCH = 0.88;   // hand meets the ball
 const P_REL = 0.065;     // ball leaves the fingertips
 const P_LOW = 0.135;     // hand at its lowest
 
-export const MOTIONS = {
+const originalMotions = {
   "one-hand-dribble": {
     cycle: 0.5,          // seconds per dribble (~2 bounces a second)
     ballRadius: R,
@@ -155,6 +157,9 @@ export const MOTIONS = {
     },
   },
 };
+
+export const originalPound = originalMotions["one-hand-dribble"];
+export const MOTIONS = { ...originalMotions, "one-hand-dribble": createPoundMotion(originalPound) };
 
 export function motionFor(drill) {
   return MOTIONS[drill] || MOTIONS["one-hand-dribble"];

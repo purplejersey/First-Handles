@@ -3,60 +3,74 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>First Handles: animation preview (dev)</title>
+  <title>One-Hand Pounds · Current vs. Revised</title>
   <link rel="stylesheet" href="../css/styles.css">
   <style>
-    body { padding: 16px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+    html { font-size: 16px; background: #101019; }
+    body { padding: 16px; max-width: 1100px; margin: auto; background: #101019; color: #f5f3ff; font-size: 16px; }
+    h1 { font-size: clamp(1.65rem, 5vw, 2.6rem); margin: 4px 0 8px; }
+    .kicker { color: #d7ff53; font-size: 14px; letter-spacing: .12em; text-transform: uppercase; }
+    .intro, .note { color: #bdb8cd; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+    .pair { min-width: 0; border: 1px solid #393447; border-radius: 14px; padding: 10px; background: #1b1826; }
+    .pair > h2 { font-size: 16px; margin: 0 0 10px; }
+    .compare { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .cell { min-width: 0; }
     .cell h2 { font-size: 1rem; margin: 0 0 6px; }
+    .cell.revised h2 { color: #d7ff53; }
+    .cell .anim { width: 100%; max-height: none; aspect-ratio: 230 / 225; border-radius: 8px; }
+    .anim__helper { display: none; }
     .controls { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
-    .controls button, .controls select { font: inherit; padding: 6px 12px; }
+    button, select { font: inherit; padding: 8px 12px; min-height: 44px; border-radius: 8px; border: 1px solid #676078; background: #292335; color: white; }
+    button:focus-visible, select:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid #d7ff53; outline-offset: 3px; }
+    button[aria-pressed="true"] { background: #d7ff53; color: #171322; }
+    .timeline { display: flex; align-items: center; gap: 10px; width: 100%; }
+    .timeline input { flex: 1; min-width: 0; height: 44px; accent-color: #d7ff53; }
+    output { min-width: 4ch; font-variant-numeric: tabular-nums; }
+    a { color: #d7ff53; }
+    details { margin: 16px 0; line-height: 1.6; }
+    summary { cursor: pointer; min-height: 44px; }
+    .note { font-size: 14px; margin: 8px 0 0; }
+    body.seams .anim { background: #ff00bb; }
+    body.seams .anim__scene, body.seams .anim__svg > rect { visibility: hidden; }
+    @media(max-width: 700px) { body { padding: 12px; } .grid { grid-template-columns: minmax(0, 1fr); gap: 12px; } }
   </style>
 </head>
 <body>
-  <h1>Animation preview (dev only)</h1>
+  <header>
+    <div class="kicker">First Handles / Animation lab</div>
+    <h1>Current vs. Revised</h1>
+    <p class="intro">One-Hand Pounds · Lower stance, faster return.<br>Current: 0.5 s · Revised: 0.4 s per pound.</p>
+  </header>
   <div class="controls">
-    <button data-phase="intro">Play</button>
-    <button data-phase="paused">Freeze</button>
-    <select id="jersey">
+    <button id="play" aria-pressed="true">Pause</button>
+    <button id="restart">Restart</button>
+    <button id="zoom" aria-pressed="false">Hand close-up</button>
+    <button id="seams" aria-pressed="false">Joint check</button>
+    <select id="jersey" aria-label="Team colors">
       <option value="">Purple / gold</option>
       <option value="#4B2E83,#D9FF1F">Purple / neon</option>
       <option value="#C8102E,#F4F4F4">Red / white</option>
       <option value="#141414,#7CB8F2">Black / sky</option>
       <option value="#F4F4F4,#1D4ED8">White / royal</option>
     </select>
-    <label>Phase <input id="scrub" type="range" min="0" max="1" step="0.01" value="0"></label>
+    <label class="timeline">Scrub phase <input id="scrub" type="range" min="0" max="1" step="0.001" value="0"><output id="phase">0.00</output></label>
   </div>
+  <p class="note" id="status">Current 120 / Revised 150 pounds per minute at 1×</p>
   <div class="grid" id="grid"></div>
-  <script type="module">
-    import { drillAnimation, mountDrillAnimation } from "../js/components/drillAnimation.js";
-    const cases = [
-      { hand: "left", view: "mirror" }, { hand: "right", view: "mirror" },
-      { hand: "left", view: "true" }, { hand: "right", view: "true" },
-    ];
-    const grid = document.getElementById("grid");
-    const ctls = cases.map((c) => {
-      const cell = document.createElement("div");
-      cell.className = "cell";
-      cell.innerHTML = `<h2>${c.hand} hand, ${c.view} view</h2><div class="stage">${drillAnimation({ drill: "one-hand-dribble", number: "23", ...c })}</div>`;
-      grid.append(cell);
-      const ctl = mountDrillAnimation(cell.querySelector(".stage"));
-      ctl.setPhase("intro");
-      return ctl;
-    });
-    window.__ctls = ctls;
-    document.querySelectorAll("[data-phase]").forEach((b) =>
-      b.addEventListener("click", () => ctls.forEach((c) => c.setPhase(b.dataset.phase))));
-    document.getElementById("scrub").addEventListener("input", (e) => {
-      ctls.forEach((c) => { c.setPhase("paused"); c._renderAt(+e.target.value); });
-    });
-    document.getElementById("jersey").addEventListener("change", (e) => {
-      const [j, t] = e.target.value.split(",");
-      const s = document.documentElement.style;
-      if (j) { s.setProperty("--jersey", j); s.setProperty("--jersey-trim", t); }
-      else { s.removeProperty("--jersey"); s.removeProperty("--jersey-trim"); }
-      ctls.forEach((c) => c.recolor());
-    });
-  </script>
+  <details>
+    <summary>What changed &amp; reference clips</summary>
+    <ul>
+      <li>Revised meets the ball while it is still rising, briefly absorbs it, then drives it down. No waiting at the top.</li>
+      <li>Revised runs at 150 pounds per minute, 25% faster than Current's 120. This is a review setting, not a measured video cadence.</li>
+      <li>The wrist follows through after release, then recovers before the catch.</li>
+      <li>Deeper knees and a stronger hip hinge keep Revised lower throughout the pound, with planted feet and less head bob.</li>
+      <li>Shorter, lighter floor compression with an immediate rising arc; planted feet and a quieter head.</li>
+    </ul>
+    <p><a href="https://www.youtube.com/watch?v=8qvCSEG0SIQ&amp;t=81s" target="_blank" rel="noopener">Coach Dags · 1:21 · youth stance</a><br>
+    <a href="https://www.youtube.com/watch?v=YuK1JHuq_aE&amp;t=38s" target="_blank" rel="noopener">CoachUp · 0:38 · side-view hand action</a></p>
+    <p class="note">Mirror view shows the hand on the same side of your screen. At ½×, Current takes 1 second and Revised takes 0.8 seconds per pound. The two cadences naturally drift apart during playback. Scrubbing pauses both at the same phase. Current is the original baseline. The local game uses Revised.</p>
+  </details>
+  <script type="module" src="./animation-preview.js"></script>
 </body>
 </html>
