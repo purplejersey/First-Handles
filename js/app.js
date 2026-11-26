@@ -52,6 +52,6 @@ function route() {
 }
 
 window.addEventListener("hashchange", route);
-initMusic();
 route();
 showTitleScreen();
+initMusic();

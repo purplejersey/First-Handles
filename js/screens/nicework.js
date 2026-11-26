@@ -28,7 +28,7 @@ export function renderNiceWork(root, stepId) {
 
   root.innerHTML = `
     <section class="nicework stack center">
-      <div class="bcast" aria-hidden="false">
+      <div class="bcast">
         <div class="bcast__band">
           <span class="bcast__kicker">Step ${escapeHtml(step.id)} complete</span>
           <h1 class="bcast__title">Nice work!</h1>

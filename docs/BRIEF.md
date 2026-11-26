@@ -20,6 +20,9 @@ The living record of decisions for the dribbling game. Read this at the start of
 - **Polish workflow:** contact sheet (phases 0, 0.2, 0.4, 0.44, 0.6, 0.9, both hands) plus close-ups; a magenta background at 6× zoom shows joint seams; give Jon a change list, the sheet, and real-speed and quarter-speed recordings. `tools/test/screens.py` screenshots every screen at phone and laptop sizes. Test scripts must set `sessionStorage firstHandles.titleSeen = "1"` to skip the title screen. Tools are in `tools/test/` (see `tools/README.md`).
 
 ## Current status
+- **Nov 26 playtest checkpoint:** The private [Sites preview](https://first-handles-phone-preview.resplendenthawk2.chatgpt.site/) changes through the green Done button were recovered into the editable GitHub review branch, `redesign/player-prototype`. The public build still deploys from `main`.
+- **Next phase:** Open a focused Work chat within the First Handles project named **First Handles — Animation Lab**. Find useful real footage of One-Hand Pounds and evaluate reusable tools, rigs and licensed assets against the current illustrated 2D animation. Compare the existing rig with Spine and Rive before choosing or buying anything. Test fingertip contact, a natural bounce and smooth full- and half-speed loops. Consider what each option needs for rear three-quarter views, ball occlusion, different player likenesses, recolorable gear and Android play.
+- **Build phase follows research:** Switch to a focused Codex thread for a playable One-Hand Pounds before-and-after on the review branch. Use this as the quality benchmark before a second-angle or accessory test and before course expansion. Keep one phase per chat, share a short handoff and exact steps when switching, and seek approval before public releases, purchases or a major change in direction. Reuse existing resources when their quality, editability, performance and licensing fit.
 - **Chunks A, B, C, C2: done.** C2 = his illustrated puppet avatar, polished pound dribble, team colors on the card and in the drill (944f11e); follow-ups e665e90 (Level 1 rename, menu music) and 82f0970 (shoulder/neck cleanup, laptop button, autoplay).
 - **Streetball UX pass: done** (8329344): game skin, title screen, trading-card player card, level tiles with progress, streetball court behind the drill (placeholder art made in code), countdown punch, broadcast Nice Work + swoosh celebration, drill music. Follow-ups: aab4076 (real basketball logo icon, themed Settings button), cfafd92 (compact Settings; step tiles show stars on their own line).
 - **Chunk F (course research): proposed, waiting on Jon.** The full course is below under "Course plan". Jon needs to (1) confirm what a "float" is (see the open question) and (2) approve or adjust the course. After that, mark Chunk F done.
@@ -112,18 +115,18 @@ Get **Level 1** working end to end with a solid base UX. Use it with the player,
 - **Devices:** mainly tablet and laptop/TV; must also work on a phone. Progress saves on one device (browser storage). The drill screen fits a phone held upright without scrolling.
 - **Structure:** levels contain steps; locked ladder; finished steps are replayable.
 - **Completion:** timed, honor system. Lost it (any time, also after time's up) pauses and resets the timer; "I'm ready" → 3-2-1 → full restart. Only Done saves.
-- **Drill flow:** tutorial loops with tips → Start → 3-2-1 → "GO!" → animation loops next to a big timer → Done → Nice Work with the star review.
+- **Drill flow:** tutorial loops with optional tips and half-speed playback → Start drill → 3-2-1 → "GO!" → animation loops next to a big timer → Done → Nice Work with the star review.
 - **Mirror vs. true view:** basic drills use mirror view + a "YOUR LEFT HAND" helper; set per drill (`DRILLS[drill].view`).
 - **Content pipeline:** drill videos are analyzed to make original animations.
 - **Music (Jon's own Suno tracks, by johnnycito):**
-  - **Menu: "Jackie Moon"**, starts 5 s in, loops on every screen except a running drill.
-  - **Drill: "Nostalgia"**, starts 10 s in, plays from Start (through 3-2-1) until time's up; then the menu track starts over from the top. Lost it after time's up + I'm ready restarts the drill track.
-  - Tries to autoplay on open (browsers allow it only on often-used sites / installed apps); the **title screen tap** always starts it. The music button top-right turns all music on/off (saved). `js/music.js` (`setTrack()`, `restartMusic()`) is the one place to change.
+  - **Menu: "Jackie Moon"**, starts 5 s in, loops outside the countdown, active drills and paused drills.
+  - **Drill: "Nostalgia"**, starts 10 s in, starts at GO and plays until time's up. The countdown plays three separate tones, then the drill track starts. Finishing restarts the menu track.
+  - The completed **Tap to play** gesture starts music when enabled. The music button top-right turns all music on/off (saved). `js/music.js` (`setTrack()`, `restartMusic()`) is the one place to change.
 - **Title screen:** "First Handles" logo + "Tap to play" over the court, once per app open (sessionStorage).
 - **Art direction:** game-quality painted style for the character (his AI illustration, cut-out puppet). The UI skin is the streetball look; backgrounds are placeholder art made in code until painted art replaces them.
 - **One avatar everywhere:** the same character on the card (portrait) and in drills (puppet), with the same team colors and number.
 - **Privacy:** his illustrated avatar is on the public site (Jon's choice); photos never go in the repo.
-- **Team colors:** main = jersey + shorts (and the UI glow); accent = trim, number, buttons, highlights. Sneakers/socks keep their own colors. Swatches include Neon Yellow.
+- **Team colors:** main = jersey + shorts (and the UI glow); accent = trim, number, buttons, highlights. Sneakers use the secondary color for their body and the primary color for their accents. Socks keep their own color. Swatches include Neon Yellow.
 - **Jersey number:** drawn live in block athletic digits (`jerseyNumber.js`), never baked into art.
 - **Stars per step:** ★ finish; ★★ / ★★★ honor-system bonus challenges; one star unlocks the next step; the best is kept. Level 1: ★★ eyes up the whole time; ★★★ eyes up + stay low.
 

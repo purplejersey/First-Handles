@@ -66,7 +66,7 @@ function ballMarkup(r) {
     </g>`;
 }
 
-export function drillAnimation({ drill, hand, view = "mirror", number = "", look = DEFAULT_LOOK }) {
+export function drillAnimation({ drill, hand, view = "mirror", number = "", look = DEFAULT_LOOK, closeFrame = false }) {
   const motion = motionFor(drill);
   const side = screenSide(hand, view);
   const flipped = side === "right";
@@ -76,7 +76,7 @@ export function drillAnimation({ drill, hand, view = "mirror", number = "", look
   return `
     <div class="anim" role="img" aria-label="Animation: ${label}"
       data-drill="${drill}" data-hand="${hand}" data-view="${view}" data-side="${side}">
-      <svg class="anim__svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+      <svg class="anim__svg" viewBox="${closeFrame ? "20 14 360 270" : `0 0 ${W} ${H}`}" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
         <image class="anim__scene" href="${SCENE_IMG}" x="0" y="0" width="${W}" height="${H}" preserveAspectRatio="none"/>
         <defs>
           <radialGradient id="anim-team-glow" cx="0.5" cy="0.38" r="0.6">
@@ -107,7 +107,7 @@ export function drillAnimation({ drill, hand, view = "mirror", number = "", look
           <path d="M${rmArrowX},180 L${rmArrowX},236 M${rmArrowX - 9},190 L${rmArrowX},178 L${rmArrowX + 9},190 M${rmArrowX - 9},226 L${rmArrowX},238 L${rmArrowX + 9},226"
             fill="none" stroke="#fff" stroke-opacity="0.92" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
         </g>
-        ${helperMarkup(side, hand)}
+        ${closeFrame ? "" : helperMarkup(side, hand)}
       </svg>
     </div>`;
 }
@@ -115,7 +115,7 @@ export function drillAnimation({ drill, hand, view = "mirror", number = "", look
 export function mountDrillAnimation(stageEl) {
   const box = stageEl.querySelector(".anim");
   const svg = box?.querySelector("svg");
-  if (!svg) return { setPhase() {}, destroy() {}, recolor() {} };
+  if (!svg) return { setPhase() {}, setSpeed() {}, destroy() {}, recolor() {} };
 
   const motion = motionFor(box.dataset.drill);
   const flipped = box.dataset.side === "right";
@@ -130,6 +130,7 @@ export function mountDrillAnimation(stageEl) {
   const reducedQuery = window.matchMedia?.("(prefers-reduced-motion: reduce)");
 
   let lastFrame = -1;
+  let speed = 1;
   let bounces = 0;      // completed dribbles, so the ball's spin carries over
   let phase = "intro";
   let p = 0;            // shared clock phase, 0 -> 1 per dribble
@@ -162,7 +163,7 @@ export function mountDrillAnimation(stageEl) {
 
   function frame(t) {
     if (last !== null) {
-      const next = p + Math.min(0.1, (t - last) / 1000) / motion.cycle;
+      const next = p + Math.min(0.1, (t - last) / 1000) * speed / motion.cycle;
       if (next >= 1) bounces = (bounces + 1) % BALL_FRAMES;
       p = next % 1;
     }
@@ -200,6 +201,7 @@ export function mountDrillAnimation(stageEl) {
       if (restart) p = 0;
       update();
     },
+    setSpeed(value) { speed = value; },
     destroy() {
       cancelAnimationFrame(raf);
       raf = 0;

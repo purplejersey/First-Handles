@@ -111,6 +111,10 @@ h1, h2, .display {
   filter: drop-shadow(0 5px 0 #6d0715) drop-shadow(0 10px 18px rgba(0, 0, 0, 0.45));
   box-shadow: none;
 }
+.drill .btn-done {
+  --secondary: #3bd487;
+  --secondary-ink: #092416;
+}
 .btn-back {
   font-family: var(--display); font-weight: 400; font-style: italic; text-transform: uppercase;
   letter-spacing: 0.03em;
@@ -330,8 +334,7 @@ button:focus-visible, input:focus-visible, [tabindex]:focus-visible {
   content: ""; position: absolute; left: 0.7em; top: 50%; width: 0.42em; height: 0.42em;
   background: var(--secondary); transform: translateY(-50%) rotate(45deg);
 }
-.timer__label, .timer__unit { font-family: var(--display); font-style: italic; text-transform: uppercase; font-weight: 400; letter-spacing: 0.04em; }
-.timer__unit { color: var(--muted); letter-spacing: 0.08em; }
+.timer__label { font-family: var(--display); font-style: italic; text-transform: uppercase; font-weight: 400; letter-spacing: 0.04em; }
 .timer__value {
   font-family: var(--display); font-style: italic; font-weight: 400;
   letter-spacing: -0.01em;
@@ -347,15 +350,17 @@ button:focus-visible, input:focus-visible, [tabindex]:focus-visible {
   color: var(--secondary);
   text-shadow: 0 0 40px color-mix(in srgb, var(--secondary) 60%, transparent), 0 8px 0 rgba(0, 0, 0, 0.45);
 }
-.countdown.pop { animation: punch 0.55s cubic-bezier(0.2, 1.6, 0.4, 1); }
-@keyframes punch { from { transform: scale(2.2); opacity: 0; } 40% { opacity: 1; } }
 
 /* ---------- nice work: broadcast banner ---------- */
 .bcast { display: grid; justify-items: center; gap: 6px; width: 100%; }
+.bcast__band, .celebrate__band {
+  --result-panel: color-mix(in srgb, var(--primary) 19%, #13111c);
+  color: #fff;
+}
 .bcast__band {
   position: relative; width: min(100%, 720px);
   padding: 0.35em 1.2em 0.45em;
-  background: linear-gradient(90deg, color-mix(in srgb, var(--primary) 70%, black), var(--primary) 30%, var(--primary) 70%, color-mix(in srgb, var(--primary) 70%, black));
+  background: linear-gradient(100deg, #13111c, var(--result-panel) 54%, #13111c);
   clip-path: polygon(3% 0, 100% 0, 97% 100%, 0 100%);
   filter: drop-shadow(0 8px 0 rgba(0, 0, 0, 0.35));
   animation: bandIn 0.5s cubic-bezier(0.2, 0.9, 0.2, 1) both;
@@ -364,13 +369,16 @@ button:focus-visible, input:focus-visible, [tabindex]:focus-visible {
   content: ""; position: absolute; left: 6%; right: 6%; bottom: 0; height: 5px; background: var(--secondary);
 }
 .bcast__kicker {
-  display: block; font-family: var(--display); font-style: italic; text-transform: uppercase;
-  letter-spacing: 0.22em; font-size: clamp(0.8rem, 0.6rem + 0.6vw, 1.1rem); color: var(--secondary);
+  display: inline-block;
+  padding: .28em .75em;
+  background: var(--secondary); color: var(--secondary-ink);
+  font: 750 clamp(12px, 1.45vw, 14px)/1.3 system-ui, sans-serif;
+  letter-spacing: .08em; text-transform: uppercase;
 }
 .bcast__title {
   font-size: clamp(2.6rem, 1.6rem + 5vw, 5.4rem);
   text-shadow: 0 4px 0 rgba(0, 0, 0, 0.35);
-  animation: titlePunch 0.6s 0.15s cubic-bezier(0.2, 1.5, 0.4, 1) both;
+  padding-top: .12em;
 }
 .bcast__tag {
   font-family: var(--display); font-style: italic; text-transform: uppercase; letter-spacing: 0.06em;
@@ -379,10 +387,15 @@ button:focus-visible, input:focus-visible, [tabindex]:focus-visible {
 }
 .bcast__tag b { color: var(--secondary); font-weight: 400; }
 @keyframes bandIn { from { transform: translateX(-60px) skewX(-12deg); opacity: 0; } }
-@keyframes titlePunch { from { transform: scale(1.6); opacity: 0; } }
 .review__title { font-size: clamp(1.4rem, 1rem + 1.4vw, 2.2rem); }
 .star-opt { background: rgba(255,255,255,0.07); border: 0; border-radius: 0; clip-path: var(--slant-sm); }
-.star-opt[aria-checked="true"] { background: color-mix(in srgb, var(--secondary) 24%, transparent); box-shadow: inset 4px 0 0 var(--secondary); }
+.star-opt[aria-checked="true"] {
+  --review-accent: color-mix(in srgb, var(--secondary) 55%, #fff);
+  background: color-mix(in srgb, var(--secondary) 18%, #201b2a);
+  box-shadow: inset 4px 0 0 var(--review-accent);
+}
+.star-opt__stars { color: #ffd875; }
+.star-opt:focus-visible { outline: 2px solid #fff; outline-offset: -4px; }
 @media (min-aspect-ratio: 5/4) and (min-width: 700px) and (max-height: 800px) {
   .bcast__title { font-size: clamp(2rem, 1rem + 3.6vw, 3.6rem); }
 }
@@ -395,7 +408,7 @@ button:focus-visible, input:focus-visible, [tabindex]:focus-visible {
 .celebrate { background: rgba(5, 3, 10, 0.55); }
 .celebrate__band {
   width: 100%; display: grid; justify-items: center; gap: 10px; padding: 1.2em 1em 1.4em;
-  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--primary) 92%, black) 12%, color-mix(in srgb, var(--primary) 92%, black) 88%, transparent);
+  background: linear-gradient(90deg, #13111c, var(--result-panel) 30%, var(--result-panel) 70%, #13111c);
   border-top: 5px solid var(--secondary); border-bottom: 5px solid var(--secondary);
   transform: skewY(-4deg);
   animation: swoosh 0.45s cubic-bezier(0.2, 0.9, 0.2, 1) both;
@@ -575,3 +588,115 @@ h1[tabindex]:focus, h2[tabindex]:focus, h1[tabindex]:focus-visible, h2[tabindex]
 .panel--quiet .panel__title { margin-bottom: -2px; }
 .btn-danger.armed, .btn-danger.armed:hover { background: #e0233f; color: #fff; }
 .tile__meta { white-space: nowrap; }
+
+/* The player card anchors the creator; the practice overlay stays above the action. */
+.studio .setup-preview {
+  width: 100%;
+  padding: 10px;
+  background: radial-gradient(ellipse at 50% 36%, color-mix(in srgb, var(--primary) 45%, transparent), transparent 74%);
+}
+.studio .setup-preview .player-card { margin-inline: auto; }
+.studio .panel {
+  border-left: 3px solid color-mix(in srgb, var(--secondary) 78%, transparent);
+  background: linear-gradient(115deg, rgba(255,255,255,.08), rgba(255,255,255,.02));
+}
+@media (max-width: 819px) {
+  .studio .setup-preview .player-card { width: min(60vw, 240px); }
+  .studio .setup-preview .player-card__avatar { height: clamp(140px, 27svh, 215px); }
+}
+.drill__stage { position: relative; }
+.court-hud {
+  position: absolute;
+  inset: 8px 10px auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  pointer-events: none;
+}
+.court-hud > span, .court-speed {
+  background: rgba(17, 13, 25, .92);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,.28);
+  border-radius: 5px;
+  padding: 5px 8px;
+  font: 800 clamp(.66rem, 2.4vw, .82rem)/1.15 system-ui, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: .035em;
+}
+.court-speed {
+  pointer-events: auto;
+  min-width: 44px;
+  min-height: 44px;
+  color: var(--secondary);
+  cursor: pointer;
+}
+.court-speed[aria-pressed="true"] { background: var(--secondary); color: var(--secondary-ink); }
+.drill:not([data-phase="intro"]) .court-speed { display: none; }
+.drill__stage:has(.dev-skip) .court-hud { right: 82px; }
+/* Make the full-body demo the focus of portrait practice. */
+@media (orientation: portrait) {
+  .drill { gap: 10px; }
+  .drill .drill__stage { width: min(100%, 66svh); justify-self: center; }
+  .drill .anim { width: 100%; max-height: none; }
+  .drill .drill__panel { gap: 10px; }
+  .drill .timer {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
+    gap: .35em;
+    width: 100%;
+  }
+  .drill .timer__label { font-size: 1rem; }
+  .drill[data-phase] .timer__value { font-size: clamp(2.2rem, 7svh, 4rem); }
+  .drill[data-phase="intro"] .tips { width: 100%; }
+  .drill .btn-huge { min-height: 60px; }
+}
+@media (orientation: portrait) and (max-height: 640px) {
+  .drill .drill__stage { width: min(100%, 60svh); }
+  .drill .drill__panel { gap: 7px; }
+  .drill[data-phase] .timer__value { font-size: 2.2rem; }
+}
+@media (min-aspect-ratio: 5/4) and (min-width: 700px) {
+  .drill { grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); }
+  .drill__stage { align-self: start; }
+}
+
+html:has(.drill) { scrollbar-gutter: stable; }
+.topbar--drill h1 {
+  padding-left: 0;
+  font-size: clamp(1rem, 3.7vw, 1.42rem);
+  line-height: 1.18;
+}
+.topbar--drill h1::before { content: none; }
+.drill[data-phase="intro"] .timer,
+.drill[data-phase="countdown"] .timer,
+.drill[data-phase="paused"] .timer__value,
+.drill[data-phase="finished"] .timer__value,
+.drill:not([data-phase="intro"]) .practice-tips { display: none; }
+/* Size the countdown to the court without scaling the drill itself. */
+.drill > .drill__stage { container-type: inline-size; }
+.drill[data-phase="intro"] .drill__actions { gap: 7px; }
+.drill .practice-start {
+  font-size: clamp(22px, 4.3vw, 36px);
+  line-height: 1.1;
+}
+.practice-duration {
+  margin: 0;
+  color: var(--muted);
+  font-size: clamp(14px, 2.6vw, 16px);
+  font-weight: 650;
+}
+.drill:not([data-phase="intro"]) .practice-duration { display: none; }
+.practice-tips { width: min(100%, 38rem); }
+.practice-tips summary {
+  box-sizing: border-box;
+  width: fit-content;
+  min-height: 44px;
+  margin-inline: auto;
+  padding: 11px 12px;
+  color: var(--ink);
+  font-size: .875rem;
+  cursor: pointer;
+}
+.drill[data-phase="intro"] .practice-tips .tips { text-align: left; }

@@ -11,8 +11,8 @@ export function renderHome(root) {
       <div class="home__brand">${logo()}</div>
       <h1 class="greeting"><small>What's up,</small> ${escapeHtml(profile.name)}!</h1>
       ${playerCard(profile, getTotals())}
-      <button class="btn-settings" data-go="#/edit">${GEAR_SVG}<span>Settings</span></button>
-      <button class="btn btn-huge btn-cta" data-go="#/levels">Let's ball</button>
+      <button class="btn-settings" data-go="#/edit">${GEAR_SVG}<span>Edit player</span></button>
+      <button class="btn btn-huge btn-cta" data-go="#/levels">Play drills</button>
     </section>`;
   mountPlayerCard(root);
   wireNav(root);

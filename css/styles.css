@@ -274,7 +274,6 @@ button:focus-visible, input:focus-visible {
   font-size: clamp(5rem, 3rem + 14vw, 13rem);
   font-weight: 900; font-variant-numeric: tabular-nums;
 }
-.timer__unit { font-weight: 700; opacity: 0.85; }
 .drill__actions { display: flex; flex-direction: column; align-items: center; width: 100%; gap: 14px; }
 .drill__actions .btn { display: none; }
 
@@ -297,9 +296,9 @@ button:focus-visible, input:focus-visible {
 @keyframes pulse { 50% { transform: scale(1.04); } }
 
 .countdown {
-  position: absolute; inset: 0; pointer-events: none;
-  display: grid; place-items: center;
-  font-size: clamp(8rem, 5rem + 20vw, 20rem); font-weight: 900;
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  display: grid; place-items: center; contain: paint;
+  font-size: clamp(96px, 40vmin, 240px); font-size: min(46cqi, 42svh, 240px); line-height: 1;
   color: var(--secondary);
   text-shadow: 0 6px 0 rgba(0,0,0,0.3);
 }

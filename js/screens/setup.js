@@ -25,9 +25,9 @@ export function renderSetup(root, { editing }) {
     </div>`;
 
   root.innerHTML = `
-    ${editing ? header("Settings", "#/home") : `<header class="topbar"><h1>Welcome to First Handles!</h1></header>`}
-    <form class="setup" novalidate>
-      ${editing ? "" : `<p class="lead">Let's make your player card.</p>`}
+    ${editing ? header("Player Studio", "#/home") : `<header class="topbar"><h1>Create your player</h1></header>`}
+    <form class="setup studio" novalidate>
+      ${editing ? "" : `<p class="lead">Your player wears these colors on the court.</p>`}
       <div class="setup-preview">${playerCard(draft)}</div>
       <div class="setup-controls">
         <section class="panel">
@@ -55,7 +55,7 @@ export function renderSetup(root, { editing }) {
           </fieldset>
         </section>
         <p class="form-error" role="alert" hidden></p>
-        <button type="submit" class="btn btn-big setup-save">${editing ? "Save" : "Let's go!"}</button>
+        <button type="submit" class="btn btn-big setup-save">${editing ? "Save player" : "Enter the court"}</button>
         ${editing ? `
           <section class="panel panel--quiet">
             <h2 class="panel__title">More</h2>

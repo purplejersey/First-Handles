@@ -35,4 +35,4 @@ export const ART_BODY = {
 export const THUMB = { pivot: [2.072, 5.772], tip: [6.216, 10.508] };
 
 // Recolor: the art's own fabric tones (mean luminance) under each mask, per piece.
-export const RECOLOR_REFS = {"torso": {"jersey": 34.33, "trim": 219.92}};
+export const RECOLOR_REFS = { torso: { jersey: 34.33, trim: 219.92 }, footL: { jersey: 41.5, trim: 216 }, footR: { jersey: 41.5, trim: 216 } };

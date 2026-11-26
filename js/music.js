@@ -1,6 +1,6 @@
 // Background music: two looping tracks by Jon (Suno, "johnnycito").
 //   menu:  "Jackie Moon", trimmed to start 5 s in. Every screen except a running drill.
-//   drill: "Nostalgia", trimmed to start 10 s in. From Start (3-2-1) until time's up.
+//   drill: "Nostalgia", trimmed to start 10 s in. From GO until time's up.
 //
 // - Tries to autoplay as soon as the app opens. Browsers only allow that on sites
 //   the player uses often or installed apps; otherwise the music starts on the
@@ -21,7 +21,6 @@ const VOLUME = { menu: 0.45, drill: 0.5 };
 
 const tracks = {};
 let current = "menu";
-let unlocked = false;   // the player has interacted, so playback is allowed
 let button = null;
 
 function track(name = current) {
@@ -35,26 +34,31 @@ function track(name = current) {
   return tracks[name];
 }
 
-function play() {
-  if (!isMusicOn() || document.hidden) return;
-  // Before the first tap this is an autoplay attempt: browsers allow it on sites
-  // the player uses often (and on installed apps); otherwise it's refused and the
-  // first tap or key press starts the music instead.
-  track().play().then(() => { unlocked = true; }).catch(() => {});
+export async function playMusic() {
+  if (!isMusicOn() || document.hidden || !current ||
+      document.querySelector(".title-screen:not(.is-leaving)")) return;
+  try {
+    const player = track();
+    if (player.paused) await player.play();
+    window.removeEventListener("click", playMusic, true);
+    window.removeEventListener("keydown", playMusic, true);
+  } catch {
+    // Retry on the next user gesture if the browser blocks playback.
+  }
 }
 
 function pauseAll() {
   Object.values(tracks).forEach((a) => a.pause());
 }
 
-/** Switch to a track ("menu" | "drill"). restart: start it from the top. */
+/** Switch to a track ("menu" | "drill") or null for silence. restart: start it from the top. */
 export function setTrack(name, { restart = false } = {}) {
   if (name !== current) {
     pauseAll();
     current = name;
   }
-  if (restart) track().currentTime = 0;
-  play();
+  if (restart && name) track().currentTime = 0;
+  playMusic();
 }
 
 /** The menu track from the top (called when a drill ends). */
@@ -81,20 +85,13 @@ function renderButton() {
 
 /** Call once at startup. */
 export function initMusic() {
-  const unlock = () => {
-    unlocked = true;
-    play();
-    window.removeEventListener("pointerdown", unlock, true);
-    window.removeEventListener("keydown", unlock, true);
-  };
-  window.addEventListener("pointerdown", unlock, true);
-  window.addEventListener("keydown", unlock, true);
-
-  play();                                            // try to autoplay right away
+  window.addEventListener("click", playMusic, true);
+  window.addEventListener("keydown", playMusic, true);
+  playMusic();
 
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) pauseAll();
-    else play();
+    else playMusic();
   });
 
   button = document.createElement("button");
@@ -103,7 +100,7 @@ export function initMusic() {
   button.addEventListener("click", () => {
     const on = !isMusicOn();
     setMusicOn(on);
-    if (on) play(); else pauseAll();
+    if (on) playMusic(); else pauseAll();
     renderButton();
   });
   document.body.append(button);

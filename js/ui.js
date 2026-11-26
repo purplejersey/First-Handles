@@ -18,11 +18,11 @@ export function handLabel(hand) {
 }
 
 // Screen header with an optional back button.
-export function header(title, backRoute) {
+export function header(title, backRoute, variant = "") {
   const back = backRoute
     ? `<button class="btn-back" data-go="${backRoute}" aria-label="Back">&larr; Back</button>`
     : "";
-  return `<header class="topbar">${back}<h1>${escapeHtml(title)}</h1></header>`;
+  return `<header class="topbar${variant ? ` ${variant}` : ""}">${back}<h1>${escapeHtml(title)}</h1></header>`;
 }
 
 // Any element with data-go="#/route" navigates when tapped.
