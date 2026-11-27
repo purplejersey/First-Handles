@@ -344,6 +344,10 @@ button:focus-visible, input:focus-visible, [tabindex]:focus-visible {
   color: #fff;
   text-shadow: 0 0 24px color-mix(in srgb, var(--secondary) 70%, transparent), 0 6px 0 rgba(0, 0, 0, 0.35);
 }
+.drill[data-phase="running"] .timer__value--final {
+  color: #ff786e;
+  text-shadow: 0 0 24px rgba(255, 120, 110, 0.45), 0 6px 0 rgba(0, 0, 0, 0.35);
+}
 .drill[data-phase="finished"] .timer__value { color: var(--secondary); }
 .countdown {
   font-family: var(--display); font-style: italic; font-weight: 400;
@@ -657,9 +661,64 @@ h1[tabindex]:focus, h2[tabindex]:focus, h1[tabindex]:focus-visible, h2[tabindex]
   .drill .drill__panel { gap: 7px; }
   .drill[data-phase] .timer__value { font-size: 2.2rem; }
 }
-@media (min-aspect-ratio: 5/4) and (min-width: 700px) {
-  .drill { grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); }
-  .drill__stage { align-self: start; }
+@media (orientation: landscape) {
+  #app:has(> .drill) {
+    --court-height: calc(100svh - 16px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    --court-width: calc(var(--court-height) * 4 / 3);
+    display: grid;
+    grid-template-columns: minmax(0, var(--court-width)) minmax(132px, 25%);
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: 8px clamp(8px, 2vw, 28px);
+    justify-content: center;
+    min-height: 100svh;
+    max-width: 100%;
+    padding: max(8px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right))
+      max(8px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+  }
+  .topbar--drill {
+    grid-column: 2;
+    display: grid;
+    gap: 6px;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+  }
+  .topbar--drill .btn-back {
+    justify-self: start;
+    min-height: 44px;
+    padding-block: 6px;
+    font-size: .85rem;
+  }
+  .topbar--drill h1 { white-space: normal; font-size: clamp(1rem, 2.5vw, 1.42rem); }
+  .drill { display: contents; }
+  .drill .drill__stage {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    width: 100%;
+    align-self: center;
+    min-width: 0;
+  }
+  .drill .anim { width: 100%; max-height: none; }
+  .drill .drill__panel { grid-column: 2; grid-row: 2; align-self: center; gap: 8px; min-width: 0; }
+  .drill .btn-huge { width: 100%; min-height: 52px; padding-inline: .5em; }
+  .drill[data-phase="intro"] .practice-start { font-size: clamp(1rem, 2.5vw, 2rem); }
+  .drill[data-phase] .timer__value { font-size: clamp(3rem, 21svh, 13rem); }
+  .drill .timer__label { font-size: clamp(1rem, 3svh, 2rem); }
+  .drill__panel:has(.practice-tips[open]) .drill__actions { display: none; }
+  .drill .practice-tips[open] .tips {
+    max-height: 42svh;
+    overflow-y: auto;
+    font-size: clamp(.75rem, 2.8svh, .95rem);
+  }
+}
+@media (min-width: 760px) and (min-aspect-ratio: 2/1) {
+  #app:has(> .drill) {
+    grid-template-columns: minmax(104px, 1fr) minmax(0, var(--court-width)) minmax(132px, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+  }
+  .topbar--drill { grid-column: 1; grid-row: 1; align-self: center; }
+  .drill .drill__stage { grid-column: 2; grid-row: 1; }
+  .drill .drill__panel { grid-column: 3; grid-row: 1; }
 }
 
 html:has(.drill) { scrollbar-gutter: stable; }

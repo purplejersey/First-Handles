@@ -11,10 +11,25 @@ import { escapeHtml, go, handLabel, header, wireNav } from "../ui.js";
 
 function createCountdownSound() {
   let context;
+  function playTone(frequency, volume, duration) {
+    if (!context || !isMusicOn() || document.hidden) return;
+    const now = context.currentTime;
+    const oscillator = context.createOscillator();
+    const envelope = context.createGain();
+    oscillator.type = "sine";
+    oscillator.frequency.value = frequency;
+    envelope.gain.setValueAtTime(0, now);
+    envelope.gain.linearRampToValueAtTime(volume, now + 0.009);
+    envelope.gain.exponentialRampToValueAtTime(0.001, now + duration);
+    oscillator.connect(envelope);
+    envelope.connect(context.destination);
+    oscillator.start(now);
+    oscillator.stop(now + duration + 0.01);
+  }
   return {
     prepare() {
       const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-      if (!AudioContextClass || !isMusicOn()) return;
+      if (!AudioContextClass) return;
       try {
         context ??= new AudioContextClass();
         context.resume().catch(() => {});
@@ -23,19 +38,10 @@ function createCountdownSound() {
       }
     },
     tick(number) {
-      if (!context || !isMusicOn() || document.hidden) return;
-      const now = context.currentTime;
-      const oscillator = context.createOscillator();
-      const envelope = context.createGain();
-      oscillator.type = "sine";
-      oscillator.frequency.value = [0, 880, 700, 560][number];
-      envelope.gain.setValueAtTime(0, now);
-      envelope.gain.linearRampToValueAtTime(0.22, now + 0.009);
-      envelope.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
-      oscillator.connect(envelope);
-      envelope.connect(context.destination);
-      oscillator.start(now);
-      oscillator.stop(now + 0.19);
+      playTone([0, 880, 700, 560][number], 0.22, 0.18);
+    },
+    finalTick() {
+      playTone(880, 0.075, 0.10);
     },
     destroy() {
       context?.close().catch(() => {});
@@ -97,7 +103,11 @@ export function renderDrill(root, stepId) {
   });
 
   // The animation follows the drill phase (loops, or freezes in the stance).
-  const setPhase = (phase) => { section.dataset.phase = phase; anim.setPhase(phase); };
+  const setPhase = (phase) => {
+    section.dataset.phase = phase;
+    if (phase !== "running") value.classList.remove("timer__value--final");
+    anim.setPhase(phase);
+  };
   const clearTimers = () => { timers.forEach(clearInterval); timers = []; };
 
   function startCountdown() {
@@ -132,11 +142,19 @@ export function renderDrill(root, stepId) {
     label.textContent = "Time left";
     const end = performance.now() + step.seconds * 1000;
     setTrack("drill", { restart: true });
-    timers.push(setInterval(() => {
+    let previous;
+    const updateTimer = () => {
       const left = Math.max(0, Math.ceil((end - performance.now()) / 1000));
+      if (left === previous) return;
+      previous = left;
       value.textContent = left;
+      const finalSeconds = left > 0 && left <= 5;
+      value.classList.toggle("timer__value--final", finalSeconds);
+      if (finalSeconds) countdownSound.finalTick();
       if (left <= 0) finish();
-    }, 100));
+    };
+    timers.push(setInterval(updateTimer, 100));
+    updateTimer();
   }
 
   function finish() {

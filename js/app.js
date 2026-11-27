@@ -51,6 +51,11 @@ function route() {
   if (heading) { heading.setAttribute("tabindex", "-1"); heading.focus({ preventScroll: true }); }
 }
 
+// A browser can reopen a saved map URL. Start a new page load at the
+// player card, while keeping map navigation and direct drill links usable.
+if (getProfile() && /^#\/?(?:levels|level\/[^/]+)\/?$/.test(location.hash)) {
+  history.replaceState(history.state, "", "#/home");
+}
 window.addEventListener("hashchange", route);
 route();
 showTitleScreen();
