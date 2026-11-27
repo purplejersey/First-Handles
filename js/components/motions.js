@@ -4,6 +4,8 @@
 // flips the result for the other side. New moves = new entries here.
 
 import { createPoundMotion } from "./poundMotion.js";
+import { samplePosture } from "./postures.js";
+import { createComboMotion } from "./comboMotion.js";
 
 const R = 19;          // ball radius (sized to the illustrated avatar)
 const FLOOR = 258;     // floor line in the 0-300 box (where the shoes stand)
@@ -159,7 +161,56 @@ const originalMotions = {
 };
 
 export const originalPound = originalMotions["one-hand-dribble"];
-export const MOTIONS = { ...originalMotions, "one-hand-dribble": createPoundMotion(originalPound) };
+const pound = createPoundMotion(originalPound);
+
+// Coach Dags's float: let the ball and hand rise to the waist while
+// the player stays down. Stretch the bounce around its fixed floor contact.
+const float = {
+  ...pound,
+  cycle: 0.76,
+  blendArm: true,
+  sample(p) {
+    // Spend more time around the high receive and push, with a smooth loop.
+    const angle = 2 * Math.PI * p;
+    const base = pound.sample(p - 0.05 * Math.sin(angle));
+    const floorY = this.ballFloor - this.ballRadius;
+    const floatY = y => floorY + (y - floorY) * 1.6;
+    const arm = base.pose.arms.L;
+    const handBallY = floatY(arm.ball.y);
+    const lift = smooth(clamp01((218 - handBallY) / 62));
+    // Let the knees and torso yield just after the push, with less dip than Pounds.
+    const react = 0.7 * (1 - Math.cos(angle + Math.PI / 4)) / 2;
+    return {
+      ...base,
+      ball: { ...base.ball, y: floatY(base.ball.y) },
+      pose: {
+        ...base.pose,
+        ...samplePosture("low", react),
+        arms: {
+          ...base.pose.arms,
+          L: {
+            ...arm,
+            ball: { ...arm.ball, y: handBallY },
+            target: { ...arm.target, y: arm.target.y + handBallY - arm.ball.y },
+            // Bring the elbow up with the receive so the bend stays open.
+            // Turn the palm with the forearm while keeping the fingers on target.
+            armGuide: { out: 7.5, down: 26 - 7 * lift, handAngle: arm.hand + 9 + 27 * lift },
+          },
+        },
+      },
+    };
+  },
+};
+
+// Float remaps its phase; invert that map to align maximum floor compression.
+let floatFloor = .3575;
+for (let i = 0; i < 12; i++) floatFloor = .3575 + .05 * Math.sin(2 * Math.PI * floatFloor);
+const poundFloat = createComboMotion([
+  { label: "Pound", motion: pound, anchor: .3575 },
+  { label: "Pound", motion: pound, anchor: .3575 },
+  { label: "Float", motion: float, anchor: floatFloor },
+]);
+export const MOTIONS = { ...originalMotions, "one-hand-dribble": pound, float, "pound-float": poundFloat };
 
 export function motionFor(drill) {
   return MOTIONS[drill] || MOTIONS["one-hand-dribble"];

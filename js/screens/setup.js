@@ -62,7 +62,7 @@ export function renderSetup(root, { editing }) {
             <div class="setting-row">
               <div class="setting-row__text">
                 <span class="setting-row__label">Developer mode</span>
-                <span class="setting-row__hint">Adds a Skip button to drills, for testing</span>
+                <span class="setting-row__hint">Open any playable level or drill and skip drill timers</span>
               </div>
               <button type="button" class="switch" role="switch" data-dev aria-checked="${isDevMode()}" aria-label="Developer mode">
                 <span class="switch__knob"></span>

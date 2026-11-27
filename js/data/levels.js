@@ -15,8 +15,30 @@ export const LEVELS = [
       { id: "1-6", hand: "right", seconds: 30, drill: "one-hand-dribble" },
     ],
   },
-  { id: 2, title: "Floats", steps: [] },
-  { id: 3, title: "Pound + Float", steps: [] },
+  {
+    id: 2,
+    title: "Floats",
+    steps: [
+      { id: "2-1", hand: "left",  seconds: 15, drill: "float" },
+      { id: "2-2", hand: "right", seconds: 15, drill: "float" },
+      { id: "2-3", hand: "left",  seconds: 20, drill: "float" },
+      { id: "2-4", hand: "right", seconds: 20, drill: "float" },
+      { id: "2-5", hand: "left",  seconds: 30, drill: "float" },
+      { id: "2-6", hand: "right", seconds: 30, drill: "float" },
+    ],
+  },
+  {
+    id: 3,
+    title: "Pound + Float",
+    steps: [
+      { id: "3-1", hand: "left",  seconds: 15, drill: "pound-float" },
+      { id: "3-2", hand: "right", seconds: 15, drill: "pound-float" },
+      { id: "3-3", hand: "left",  seconds: 20, drill: "pound-float" },
+      { id: "3-4", hand: "right", seconds: 20, drill: "pound-float" },
+      { id: "3-5", hand: "left",  seconds: 30, drill: "pound-float" },
+      { id: "3-6", hand: "right", seconds: 30, drill: "pound-float" },
+    ],
+  },
   { id: 4, title: "Level 4", steps: [] },
   { id: 5, title: "Level 5", steps: [] },
 ];
@@ -26,6 +48,8 @@ export const LEVELS = [
 // the avatar facing him, so his left hand appears on the screen's right.
 export const DRILLS = {
   "one-hand-dribble": { view: "mirror" },
+  float: { view: "mirror" },
+  "pound-float": { view: "mirror" },
 };
 
 // Coaching content per drill (Chunk B, from Coach Dags + standard coaching cues).
@@ -35,6 +59,28 @@ export const DRILLS = {
 //        finish the time (always unlocks the next step). Stars stack: 3 stars means
 //        the 2-star challenge too. Best per step is saved and never goes down.
 export const DRILL_TIPS = {
+  "pound-float": {
+    key: [
+      "Pound, pound, float: keep the beat",
+      "Hand stays on top for the float",
+      "Stay low the whole time",
+    ],
+    stars: {
+      2: "Eyes up the whole time",
+      3: "Eyes up + stay low the whole time",
+    },
+  },
+  float: {
+    key: [
+      "Stay low as the ball rises",
+      "Let your hand rise with the ball",
+      "Keep your hand above it, then push it back down",
+    ],
+    stars: {
+      2: "Eyes up the whole time",
+      3: "Eyes up + stayed low as the ball rose",
+    },
+  },
   "one-hand-dribble": {
     key: [
       "Sit in your stance: knees bent, back straight",

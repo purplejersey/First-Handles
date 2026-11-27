@@ -59,10 +59,11 @@ export function isStepDone(stepId) {
 }
 
 export function isLevelComplete(level) {
-  return level.steps.length > 0 && level.steps.every((s) => isStepDone(s.id));
+  return !level.preview && level.steps.length > 0 && level.steps.every((s) => isStepDone(s.id));
 }
 
 export function isLevelUnlocked(level) {
+  if (isDevMode() && level.steps.length > 0) return true;
   const index = LEVELS.indexOf(level);
   if (index <= 0) return true;
   return isLevelComplete(LEVELS[index - 1]);
@@ -71,7 +72,7 @@ export function isLevelUnlocked(level) {
 export function isStepUnlocked(stepId) {
   const found = findStep(stepId);
   if (!found || !isLevelUnlocked(found.level)) return false;
-  if (found.index === 0) return true;
+  if (isDevMode() || found.index === 0) return true;
   return isStepDone(found.level.steps[found.index - 1].id);
 }
 
@@ -127,7 +128,7 @@ export function getTotals() {
 }
 
 // ---------- developer mode (testing only) ----------
-// Shows a Skip button on the drill screen so progression can be tested fast.
+// Opens playable levels and steps and shows a Skip button in drills.
 export function isDevMode() {
   return Boolean(state.dev);
 }

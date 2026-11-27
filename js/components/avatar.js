@@ -45,6 +45,20 @@ function piece(name) {
   return `<image href="${ASSET(name)}" x="${p.x}" y="${p.y}" width="${p.w}" height="${p.h}"${turn} preserveAspectRatio="none"/>`;
 }
 
+const SHOULDER_CAP = 9;
+
+function upperArmMarkup(side) {
+  const art = piece("upper" + side);
+  // Clip the same painted piece twice in its bone coordinates. Only the part
+  // below the cap shortens, with a small overlap along the shared edge.
+  return `<g data-j="upper${side}">
+    <g data-j="upperStretch${side}">
+      <svg x="-40" y="${SHOULDER_CAP}" width="80" height="42" viewBox="-40 ${SHOULDER_CAP} 80 42" overflow="hidden">${art}</svg>
+    </g>
+    <svg x="-40" y="-40" width="80" height="${40 + SHOULDER_CAP + .35}" viewBox="-40 -40 80 ${40 + SHOULDER_CAP + .35}" overflow="hidden">${art}</svg>
+  </g>`;
+}
+
 // The dribbling hand carries its thumb as a separate joint (pivot at its base),
 // both in the art's own hand frame, so the thumb can fold onto the ball.
 function dribbleHand(side) {
@@ -69,14 +83,16 @@ const NUM = { x: 1.5, y: -34 };   // chest center, relative to the pelvis
  * opts.dribbleSide: "L" | "R" — whose arm goes in front of the ball.
  * opts.slot: markup placed between the free arm and the dribbling arm
  *            (the ball goes here so the dribbling hand sits on top of it).
+ * opts.blendArm: preserve the shoulder cap and underpaint the elbow on high catches.
  */
-export function avatarMarkup({ number = "", dribbleSide = "L", slot = "" } = {}) {
+export function avatarMarkup({ number = "", dribbleSide = "L", slot = "", blendArm = false } = {}) {
   const j = (key) => `<g data-j="${key}">${piece(key)}</g>`;
   const free = dribbleSide === "L" ? "R" : "L";
+  const upper = (side) => blendArm && side === dribbleSide ? upperArmMarkup(side) : j("upper" + side);
   return `
     <g class="av">
-      ${j("head")}${j("hair")}
-      ${j("upperL")}${j("upperR")}
+      ${j("head")}${j("hair")}${blendArm ? `<ellipse data-j="elbow${dribbleSide}" cx="-2" cy="1.1" rx="6.2" ry="4.8" fill="#dc9878"/>` : ""}
+      ${upper("L")}${upper("R")}
       ${j("thighL")}${j("thighR")}
       ${j("shinL")}${j("shinR")}
       ${j("footL")}${j("footR")}
@@ -141,6 +157,7 @@ export function solveTwoBone(sx, sy, tx, ty, l1, l2, bend) {
  *   cloth,                // optional: tiny jersey settle, as extra torso stretch (secondary motion)
  *   arms: { L: { target: {x,y}, hand, ball: {x,y,r}, grip } | { upper, fore, hand }, R: ... },
  *     (ball + grip: the thumb folds so its tip rests on the ball; grip 0..1 blends it in)
+ *     (armGuide: optional projected elbow offsets and hand angle for a high receive)
  *   knees: outward knee offset in rig units (bent knees read as slightly out in front view)
  * }
  * Targets are the finger contact point in rig space (x around 0, y in the 0–300 box).
@@ -192,7 +209,17 @@ export function poseAvatar(refs, pose) {
     const h = a.hand ?? 0;
     const dir = (deg) => ({ x: -Math.sin(deg / DEG), y: Math.cos(deg / DEG) });
     let ex, ey, wx, wy, foreAng;
-    if (a.target) {
+    if (a.target && a.armGuide) {
+      // Guide the elbow below the shoulder during a high receive. With the
+      // hand angle set by the motion, solve the wrist directly from the fingers.
+      const guide = a.armGuide;
+      const d = dir(guide.handAngle + B.fingertip.off);
+      wx = a.target.x - d.x * B.fingertip.len;
+      wy = a.target.y - d.y * B.fingertip.len;
+      ex = sx + sign * guide.out;
+      ey = sy + guide.down;
+      foreAng = segAngle(wx - ex, wy - ey);
+    } else if (a.target) {
       // The fingertips (turned with the wrist) must land exactly on the target,
       // so solve for the wrist: a few damped fixed-point steps.
       const L1 = B.reachUpper, L2 = B.reachFore, FT = B.fingertip;
@@ -217,10 +244,22 @@ export function poseAvatar(refs, pose) {
       wx = ex + dir(f).x * L2; wy = ey + dir(f).y * L2;
       foreAng = f;
     }
-    set(`upper${s}`, `translate(${r2(sx)},${r2(sy)}) rotate(${r2(segAngle(ex - sx, ey - sy))}) scale(1,${r2(Math.hypot(ex - sx, ey - sy) / B.upperArm)})`);
+    const upperAng = segAngle(ex - sx, ey - sy);
+    const upperLength = Math.hypot(ex - sx, ey - sy);
+    const shoulderPose = `translate(${r2(sx)},${r2(sy)}) rotate(${r2(upperAng)})`;
+    // Underpaint the joint where the feathered edges of the two arm pieces meet.
+    refs[`elbow${s}`]?.setAttribute("transform", `translate(${r2(ex)},${r2(ey)}) rotate(${r2(upperAng)}) scale(${-sign},1)`);
+    if (refs[`upperStretch${s}`]) {
+      const stretch = (upperLength - SHOULDER_CAP) / (B.upperArm - SHOULDER_CAP);
+      set(`upper${s}`, shoulderPose);
+      set(`upperStretch${s}`, `translate(0,${SHOULDER_CAP}) scale(1,${stretch.toFixed(3)}) translate(0,${-SHOULDER_CAP})`);
+    } else {
+      set(`upper${s}`, `${shoulderPose} scale(1,${r2(upperLength / B.upperArm)})`);
+    }
     set(`fore${s}`, `translate(${r2(ex)},${r2(ey)}) rotate(${r2(foreAng)}) scale(1,${r2(Math.hypot(wx - ex, wy - ey) / B.forearm)})`);
-    set(`hand${s}`, `translate(${r2(wx)},${r2(wy)}) rotate(${r2(foreAng + h)})`);
-    if (refs[`thumb${s}`]) set(`thumb${s}`, `translate(${THUMB.pivot[0]},${THUMB.pivot[1]}) rotate(${r2(thumbAngle(a, wx, wy, foreAng + h - PIECES["hand" + s].rest))})`);
+    const handAng = a.armGuide?.handAngle ?? foreAng + h;
+    set(`hand${s}`, `translate(${r2(wx)},${r2(wy)}) rotate(${r2(handAng)})`);
+    if (refs[`thumb${s}`]) set(`thumb${s}`, `translate(${THUMB.pivot[0]},${THUMB.pivot[1]}) rotate(${r2(thumbAngle(a, wx, wy, handAng - PIECES["hand" + s].rest))})`);
   }
 }
 

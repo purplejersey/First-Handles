@@ -99,7 +99,7 @@ export function drillAnimation({ drill, hand, view = "mirror", number = "", look
         <ellipse class="anim__spot" cx="0" cy="0" rx="22" ry="4.2" fill="url(#anim-shadow)" opacity="0.3"
           transform="translate(${spotX},${(motion.ballFloor ?? motion.floor) + 1})"/>
         <g class="anim__rig" transform="translate(${W / 2},0)${flipped ? " scale(-1,1)" : ""}">
-          ${avatarMarkup({ look, number, dribbleSide: "L", slot: ballMarkup(motion.ballRadius) })}
+          ${avatarMarkup({ look, number, dribbleSide: "L", slot: ballMarkup(motion.ballRadius), blendArm: motion.blendArm })}
         </g>
         <g class="anim__rm-arrow" style="display:none">
           <path d="M${rmArrowX},180 L${rmArrowX},236 M${rmArrowX - 9},190 L${rmArrowX},178 L${rmArrowX + 9},190 M${rmArrowX - 9},226 L${rmArrowX},238 L${rmArrowX + 9},226"
@@ -133,7 +133,8 @@ export function mountDrillAnimation(stageEl) {
   let speed = 1;
   let bounces = 0;      // completed dribbles, so the ball's spin carries over
   let phase = "intro";
-  let p = 0;            // shared clock phase, 0 -> 1 per dribble
+  const restPhase = motion.restPhase ?? 0;
+  let p = restPhase;    // shared clock phase, 0 -> 1 per cycle
   let last = null;
   let raf = 0;
 
@@ -146,7 +147,7 @@ export function mountDrillAnimation(stageEl) {
     const R = motion.ballRadius;
     // Squash/stretch anchored at the bottom of the ball.
     ball.setAttribute("transform", `translate(${x},${r2(y + R)}) scale(${r2(sx)},${r2(sy)}) translate(0,${-R})`);
-    const frame = Math.floor((bounces + (s.ball.spin ?? 0)) * FRAMES_PER_BOUNCE) % BALL_FRAMES;
+    const frame = Math.floor((bounces * (motion.bouncesPerCycle ?? 1) + (s.ball.spin ?? 0)) * FRAMES_PER_BOUNCE) % BALL_FRAMES;
     if (frame !== lastFrame) {
       ballInner.setAttribute("viewBox", `${(frame % BALL_COLS) * 192} ${Math.floor(frame / BALL_COLS) * 192} 192 192`);
       lastFrame = frame;
@@ -182,9 +183,9 @@ export function mountDrillAnimation(stageEl) {
       cancelAnimationFrame(raf);
       raf = 0;
       // Freeze in the stance (ball held at the hip) unless only the tab hid.
-      if (!MOVING.has(phase) || reduced()) { p = 0; render(0); }
+      if (!MOVING.has(phase) || reduced()) { p = restPhase; render(p); }
     } else if (!move) {
-      p = 0; render(0);
+      p = restPhase; render(p);
     }
   }
 
@@ -192,13 +193,13 @@ export function mountDrillAnimation(stageEl) {
   document.addEventListener("visibilitychange", onVisibility);
   reducedQuery?.addEventListener?.("change", update);
 
-  render(0);
+  render(p);
 
   return {
     setPhase(next) {
       const restart = !MOVING.has(phase) && MOVING.has(next);
       phase = next;
-      if (restart) p = 0;
+      if (restart) p = restPhase;
       update();
     },
     setSpeed(value) { speed = value; },

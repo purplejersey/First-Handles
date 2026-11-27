@@ -5,6 +5,9 @@ The living record of decisions for the dribbling game. Read this at the start of
 > **Handoff note (Nov 25, 2026):** This brief was kept in a claude.ai project while Claude built Chunks A–C2 and the streetball pass. It now lives here in the repo, and this copy is the source of truth for Codex and any other agent.
 
 ## How we work
+- **Own the module.** Carry routine, reversible decisions through implementation and verification. Ask Jon when a choice changes what players are taught, changes the visual direction substantially, or needs release approval. Share one review-ready preview per milestone and note the important choices.
+- **Make the game feel great.** Treat the illustrated avatar, streetball presentation and fluid, natural motion as core quality goals. Before review, check both hands at full and half speed. Scrub the catch, release, floor contact and any joins between moves. Look for collapsing shoulders, separated joints, foot sliding, ball drift and sudden speed changes. Check readability on a phone in portrait and landscape.
+- **Hand off at module boundaries.** Before switching chats, show Jon the next goal, quality bar, guardrails, approved work, local and public status, and open checks. Wait for his go-ahead. The next chat reads this brief first and works from the same standards.
 - **Step by step.** Short replies, one topic at a time, with room for Jon to jump in. Don't get ahead of him.
 - **Move fast, fill in blanks (Jon, Nov 25):** "expedite… instead of getting stuck on minute details. Fill in a lot of blanks that we can go back and fix later." Make sensible calls, list the blanks you filled, keep going. Polish comes later.
 - **Work in chunks.** Each chunk is one focused task with a clear end. Finished chunks aren't reopened; later changes are new tasks and get recorded here.
@@ -20,6 +23,16 @@ The living record of decisions for the dribbling game. Read this at the start of
 - **Polish workflow:** contact sheet (phases 0, 0.2, 0.4, 0.44, 0.6, 0.9, both hands) plus close-ups; a magenta background at 6× zoom shows joint seams; give Jon a change list, the sheet, and real-speed and quarter-speed recordings. `tools/test/screens.py` screenshots every screen at phone and laptop sizes. Test scripts must set `sessionStorage firstHandles.titleSeen = "1"` to skip the title screen. Tools are in `tools/test/` (see `tools/README.md`).
 
 ## Current status
+- **Nov 26 Levels 2–3 release approved:** Jon approved pushing the local Pound + Float build to GitHub Pages. The release includes all six Floats sets, all six Pound + Float sets and Developer mode access to playable sets. The sets alternate left/right at 15, 20, and 30 seconds per hand. Completing Floats opens 3-1, and completing the combo level opens the Level 4 placeholder. Pound + Float uses the course plan's coaching and star challenges, and starts and freezes with the ball in hand.
+- **Nov 26 Level 3 map verification:** Browser played the full 3-1 timer with Developer mode off, saved three stars through reload and opened the right-hand 3-2 via Next step. Progress checks covered all six locks, best stars and the Level 4 gate. The drill fit 360×600, 390×664, 430×740, 568×320 and 844×390 without scrolling. Console clean. Real-device playtest remains open.
+- **Nov 26 Level 3 Animation Lab:** `dev/pound-float-preview.html` repeats two .4 s Pounds and one .76 s Float on the selected hand (1.56 s total). A reusable combo sampler joins the approved motions at maximum floor compression and blends free-hand/body recovery over 55 ms on either side. Catches retain fingertip contact. The combo uses the Float elbow guide throughout and keeps the approved low stance and art. The lab has beat highlighting, both hands, 1×/½×, pause, scrub and frame stepping. Jon reviewed the lab before the map was wired.
+- **Nov 26 Level 3 verification:** 20,000 motion samples pass finite values, floor bounds, held-ball contact, low stance, distinct Float height and position/velocity continuity at all three joins, including the wrap. Browser playback sampled with both hands at 1×/½×; catches and joins scrubbed visually. Feet transforms stay fixed throughout. Portrait 360×600, 390×664, 430×740 and landscape 568×320, 667×375, 844×390 checked; short landscape controls tightened after finding overflow. Browser console clean. A timed CDP playback probe stalled; visual playback checks and deterministic motion tests were used instead. Physical-device review remains Jon's check.
+- **Nov 26 Floats approved and Level 3 handoff:** Jon approved the local Floats playtest and asked to begin Pound + Float in a fresh chat. Build and verify a fluid two-pounds, one-float loop first. Use the standalone Animation Lab for review before wiring the Level 3 map.
+- **Nov 26 Developer mode access (local):** Jon asked to open playable levels directly for testing. Developer mode opens every playable level and step, with the existing timer Skip button. Normal progression applies when Developer mode is off.
+- **Nov 26 Level 2 map (local):** Jon asked for Floats to match Pounds. The six sets alternate left and right at 15, 20, and 30 seconds per hand. The existing Step 2-1 ID preserves earned stars. Finishing all six opens the Level 3 placeholder.
+- **Nov 26 Floats shoulder and rhythm refinement (local lab):** The painted shoulder cap keeps its shape as the upper arm shortens in perspective. A shallower elbow lift and greater overlap make the bend read as one arm. The knees and torso dip just after the push, with 1.26 rig units of hip travel per cycle (Pounds uses 1.8). Float keeps its .76 s loop and existing bounce. Review both hands at full and half speed in the standalone lab.
+- **Floats quick review:** Jon prefers the standalone Animation Lab for incremental animation review. `dev/floats-preview.html` opens the game's actual Float loop directly with hand selection, half speed, pause, and a position slider. Use the full drill for timed sets and progression checks.
+- **Nov 26 Level 2 Floats playtest:** Coach Dags calls it a change of height and pace. Let the ball and the same hand come up while the body stays low (1:55–2:20 and 2:45–3:16). The first prototype is a 15-second left-hand set with standalone floats, slower than Pounds. The two-pound lead-in belongs to the later combo drill. Step 2-1 opens after Level 1 and saves stars normally. Level 2 is marked as a preview so finishing that one step does not unlock Level 3. Private phone playtest first.
 - **Nov 26 phone release approved:** Jon approved the combined device preview with the larger landscape court, saved-map startup fix, and final-five timer cues for GitHub Pages.
 - **Nov 26 final-five drill cue (approved in local preview):** After completing Level 1, the player asked for a warning as the timer nears zero. The running timer turns coral at 5 and plays a soft tick at each displayed second through 1 using the existing sound toggle. The cue clears when the set pauses or finishes. Jon approved the cue for a final device check alongside the larger landscape court on First Handles Phone Preview.
 - **Nov 26 full-height landscape playtest:** The header moved beside the court. Wide phones put the court between the header and controls. Narrower landscape screens put them together on the right. Dribble Tips expands in the controls area and temporarily hides Start. The court measures 374 px high on an 844×390 viewport, up from 310 px in the first pass. Checked five landscape sizes, portrait at 390×664, and Start, Lost it, and tips on the shortest landscape viewport. The existing private First Handles Phone Preview is the phone test target before any GitHub Pages release.
@@ -51,7 +64,7 @@ The living record of decisions for the dribbling game. Read this at the start of
 | # | Zone | Level | What it is | Animation work |
 |---|---|---|---|---|
 | 1 | Driveway | Pounds | built (`one-hand-dribble`) | done |
-| 2 | Driveway | Floats | one hand, ball swings side to side in front, hand riding on top | **new motion** |
+| 2 | Driveway | Floats | same hand rises with a higher, slower bounce while the player stays low | **six steps in local playtest** |
 | 3 | Driveway | Pound + Float | 2 pounds, 1 float, repeat | combo; build a reusable "combo player" that chains motions here |
 | 4 | Driveway | Push-Pulls | one hand, ball rocks forward/back beside the foot | variation of Floats (turned 90°, depth shown by ball scale + shadow) |
 | 5 | Park | Crossovers | bounce in front, hand to hand, nonstop | **new motion** (both hands) |
@@ -73,7 +86,7 @@ Totals: 4 new motions, 1 variation, 4 combos.
   - Cross + Between, The Combo: "never hit Lost it"
 
 ### Key tips (3 per drill, shown under the animation)
-- **Floats:** "Hand rides on top of the ball" · "Float it side to side, ankle to ankle" · "Soft wrist, sneak a peek up"
+- **Floats:** "Stay low as the ball rises" · "Let your hand rise with the ball" · "Keep your hand above it, then push it back down"
 - **Pound + Float:** "Pound, pound, float: keep the beat" · "Hand stays on top for the float" · "Stay low the whole time"
 - **Push-Pulls:** "Push it forward, pull it back" · "Keep it beside your foot" · "Hand on top, no carrying"
 - **Crossovers:** "Low and quick across your body" · "Catch it with the other hand's fingertips" · "Bounce it in the middle"
@@ -92,7 +105,7 @@ Totals: 4 new motions, 1 variation, 4 combos.
 - Behind the Back: https://www.youtube.com/watch?v=nLvBb6bGLcc · https://www.youtube.com/watch?v=Ze9QKvjZxYQ
 
 ### Open question for Jon
-- **What is a "float"?** The plan assumes one hand moving the ball side to side in front of the body, hand riding on top (a front V). Jon to confirm against Coach Dags 1:51–3:16. If it's different, Levels 2–4 change.
+- **Float definition for the playtest:** The Coach Dags demo shows a higher, slower bounce on the same side with the hand rising and the body staying low. The earlier front-V idea is a different move.
 
 ### Blanks filled (Jon can change)
 Zone names (Driveway/Park/Gym/Arena), the level names, 45 s steps in Levels 7–10, and high-low pounds as a tip instead of a level.
@@ -115,7 +128,8 @@ Jon wants to install First Handles as an APK on his Android phone/tablet. Plan (
 
 Done (recent): compact Settings + step tile stars (cfafd92); logo ball + Settings button (aab4076); streetball UX pass + drill music (8329344); shoulder joints, neck in the V, laptop Start button, music autoplay (82f0970). Earlier: drill fits all screen shapes, star review, developer mode + Skip, tip 3 reworded, Level 1 renamed, menu music.
 
-Done (Nov 26): Jon approved the revised One-Hand Pounds drill and the recovered private playtest changes for release together.
+Done (Nov 26): Developer mode opens playable levels and drills for local testing. Floats has a full six-step map and refined animation ready for local review. Jon approved the revised One-Hand Pounds drill and the recovered private playtest changes for release together.
+Done (Nov 26, Level 3): Same-hand Pound + Float lab and six playable course steps built and checked locally.
 Review bundle: `dev/review/phone-preview.html` (portable, embedded art/modules), `phone-preview.png`, `contact-sheet.png` (both hands at 0/.2/.4/.44/.6/.9), `joint-closeups.png`, and `real-speed.webm` / `quarter-speed.webm` (both hands, wall-clock sampled canvas recordings). The live HTML remains the best smooth-motion comparison; recordings depend on capture frame rate. Physical Android testing remains for Jon.
 
 ## Goal of Beta v1
@@ -177,6 +191,7 @@ Art: `art/source/stance.png`, `art/source/portrait.png`. Cutting: `tools/avatar/
 - `js/ui.js`: helpers, `header()`, `logo()`, `GEAR_SVG`.
 - `assets/avatar/`, `assets/scene/court.webp`, `assets/fonts/`, `art/source/`, `tools/avatar/`, `tools/test/`, `dev/animation-preview.html`.
 - Pounds motion: `js/components/poundMotion.js` supplies the revised motion registered in `motions.js`. The animation lab in `dev/animation-preview.js` compares the original and revised variants. `tools/test/pack_animation_preview.mjs` packages the offline comparison.
+- Combo motion: `js/components/comboMotion.js` chains aligned same-hand bounces; `motions.js` registers `pound-float`. `dev/pound-float-preview.html` + `.js` provide its standalone review lab. `tools/test/combo_check.mjs` checks floor/contact/stance/joins (`node tools/test/combo_check.mjs`).
 
 ## Chunk B: Level 1 content (DONE)
 Reference: Coach Steve Dagostino ("Coach Dags"), "Basketball Dribbling Drills for Beginners", https://www.youtube.com/watch?v=8qvCSEG0SIQ (ages ~5–10). Pound dribble 0:25–1:51; floats 1:51–3:16. Tips: "Sit in your stance: knees bent, back straight" · "Push it, don't slap it: use your fingertips" · "Pound it low by your hip, sneak a peek up"; 9 pro tips; stars as above. Level 1 steps: 1-1/1-2 15 s, 1-3/1-4 20 s, 1-5/1-6 30 s, alternating left/right.
